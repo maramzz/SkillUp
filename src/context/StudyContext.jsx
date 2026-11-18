@@ -102,7 +102,7 @@ const StudyProvider = ({ children }) => {
   }, [assistantNotes]);
   const navigate = (path) => {
     routerNavigate(path);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
   const toggleTheme = () => {
     setThemeState((prev) => prev === "light" ? "dark" : "light");

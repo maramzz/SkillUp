@@ -85,21 +85,21 @@ const HomePage = () => {
   }
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         <div className="lg:col-span-6 flex flex-col justify-center space-y-5 py-2">
-          <div className="flex flex-wrap items-baseline gap-2.5">
+          <div className="group flex flex-wrap items-baseline gap-2.5">
             <p className="font-handwritten text-2xl sm:text-[28px] text-[#245A43] dark:text-[#D9B65F] leading-snug">
               {getGreeting()}
             </p>
             <button
     type="button"
     onClick={resetStudentName}
-    className="text-xs text-[#5C4B3A]/80 hover:text-[#245A43] dark:text-[#BDAE97]/75 dark:hover:text-[#D9B65F] underline underline-offset-2 cursor-pointer transition-colors"
+    className="change-name-button text-xs text-[#5C4B3A]/70 dark:text-[#BDAE97]/70 underline underline-offset-2 cursor-pointer transition-opacity duration-200 focus-visible:outline-none focus-visible:opacity-100"
   >
               {t.home.changeNameTitle}
             </button>
           </div>
 
           <h1
-    className="font-serif-display text-3xl sm:text-4xl lg:text-[44px] font-semibold tracking-tight text-[#241B12] dark:text-[#E9E0CD] leading-[1.15]"
+    className="font-serif-display text-3xl sm:text-4xl lg:text-[40px] font-semibold tracking-tight text-[#241B12] dark:text-[#E9E0CD] leading-[1.15]"
     style={{ textWrap: "balance" }}
   >
             {t.home.heroTitle}
@@ -129,13 +129,13 @@ const HomePage = () => {
         </div>
 
         <div className="lg:col-span-6 flex items-center justify-center">
-          {!heroImgError ? <div className="relative w-full flex items-center justify-center">
+          {!heroImgError ? <div className="home-hero-art w-full flex items-center justify-center">
               <img
     src={HERO_DESK_ILLUSTRATION}
     alt="Calm study desk illustration with stacked books, an open book with a bookmark, a steaming mug, and a warm desk lamp in front of an arched evening window"
     referrerPolicy="no-referrer"
     onError={() => setHeroImgError(true)}
-    className="w-full max-w-lg lg:max-w-none h-auto object-contain mix-blend-multiply dark:mix-blend-normal dark:opacity-90 dark:[mask-image:radial-gradient(ellipse_80%_78%_at_50%_50%,#000_55%,transparent_96%)] dark:[-webkit-mask-image:radial-gradient(ellipse_80%_78%_at_50%_50%,#000_55%,transparent_96%)] select-none"
+    className="w-full max-w-lg lg:max-w-none h-auto object-contain select-none"
   />
             </div> : <div className="w-full py-12 flex flex-col items-center justify-center text-center">
               <BooksIcon size={40} className="text-[#2F6B52] mb-3" />

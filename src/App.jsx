@@ -1,4 +1,5 @@
-import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { StudyProvider, useStudy } from "./context/StudyContext";
 import { Navbar } from "./components/layout/Navbar";
 import { WelcomeNameGate } from "./components/WelcomeNameGate";
@@ -13,9 +14,11 @@ const DetailRoute = () => {
   return <ResourceDetailPage resourceId={decodeURIComponent(id)} key={id} />;
 };
 const AppContent = () => {
+  const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
   const { t, hasEnteredName } = useStudy();
   if (!hasEnteredName) {
-    return <div className="min-h-screen bg-[#E9E0CD] dark:bg-[#1B150F]">
+    return <div className="app-shell min-h-screen">
         <WelcomeNameGate />
       </div>;
   }
@@ -26,18 +29,31 @@ const AppContent = () => {
     { to: "/revisions", label: t.nav.revisions },
     { to: "/assistant", label: t.nav.assistant }
   ];
-  return <div className="min-h-screen flex flex-col bg-[#E9E0CD] dark:bg-[#1B150F] text-[#241B12] dark:text-[#E9E0CD]">
+  return <div className="app-shell min-h-screen flex flex-col text-[#241B12] dark:text-[#E9E0CD]">
       <Navbar />
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 md:pb-12">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/ressources" element={<ResourcesPage />} />
-          <Route path="/ressources/:id" element={<DetailRoute />} />
-          <Route path="/favoris" element={<FavoritesPage />} />
-          <Route path="/revisions" element={<RevisionsPage />} />
-          <Route path="/assistant" element={<AssistantPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={location.pathname}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+            transition={{
+              duration: shouldReduceMotion ? 0 : 0.32,
+              ease: [0.16, 1, 0.3, 1]
+            }}
+          >
+            <Routes location={location}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/ressources" element={<ResourcesPage />} />
+              <Route path="/ressources/:id" element={<DetailRoute />} />
+              <Route path="/favoris" element={<FavoritesPage />} />
+              <Route path="/revisions" element={<RevisionsPage />} />
+              <Route path="/assistant" element={<AssistantPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
       </main>
       <footer className="hidden md:block border-t border-[#241B12]/10 dark:border-[#E9E0CD]/10 py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-6 text-sm text-[#5C4B3A] dark:text-[#BDAE97]">

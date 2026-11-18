@@ -11,7 +11,7 @@ const BookCover = ({
   const [hasError, setHasError] = useState(false);
   const showFallback = !src || hasError;
   return <div
-    className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#DDD2BA] dark:bg-[#30261B] border border-[#241B12]/10 dark:border-[#E9E0CD]/10 shadow-sm ${className}`}
+    className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#E9E2D6] dark:bg-[#303129] border border-[#241B12]/10 dark:border-[#E9E0CD]/10 shadow-sm ${className}`}
   >
       {!showFallback ? <img
     src={src}
@@ -29,7 +29,7 @@ const BookCover = ({
             {category}
           </span>
           <div className="space-y-2.5 my-auto px-1">
-            <div className="w-10 h-10 rounded-xl bg-[#F6F0E1]/75 dark:bg-[#1B150F]/55 mx-auto flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#FFFCF5]/75 dark:bg-[#191A16]/55 mx-auto flex items-center justify-center">
               <BooksIcon size={20} className="text-[#241B12] dark:text-[#E9E0CD] opacity-80" />
             </div>
             <p className="font-serif-display text-sm sm:text-base font-semibold text-[#241B12] dark:text-[#E9E0CD] line-clamp-3 leading-snug">

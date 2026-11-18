@@ -1,8 +1,8 @@
 const variantClasses = {
-  surface: "bg-[#F6F0E1] dark:bg-[#261E15] border border-[#241B12]/8 dark:border-[#E9E0CD]/8 warm-shadow",
-  elevated: "bg-[#FFFDF9] dark:bg-[#2D221C] border border-[#241B12]/9 dark:border-[#E9E0CD]/10 warm-shadow",
+  surface: "bg-[#FFFCF5] dark:bg-[#25251F] border border-[#241B12]/8 dark:border-[#E9E0CD]/8 warm-shadow",
+  elevated: "bg-[#FFFEFA] dark:bg-[#2B2B24] border border-[#241B12]/9 dark:border-[#E9E0CD]/10 warm-shadow",
   note: "note-card-ruled border border-[#2F6B52]/22 dark:border-[#C9A24A]/22 warm-shadow",
-  outlined: "bg-[#F6F0E1]/60 dark:bg-[#261E15]/60 border border-[#241B12]/12 dark:border-[#E9E0CD]/12"
+  outlined: "bg-[#FFFCF5]/70 dark:bg-[#25251F]/70 border border-[#241B12]/12 dark:border-[#E9E0CD]/12"
 };
 const paddingClasses = {
   none: "",
@@ -19,7 +19,7 @@ const Card = ({
   ...rest
 }) => {
   return <div
-    className={`rounded-[20px] ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? "warm-shadow-hover" : ""} ${className}`}
+    className={`rounded-[24px] ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? "warm-shadow-hover" : ""} ${className}`}
     {...rest}
   >
       {children}

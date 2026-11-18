@@ -1,6 +1,6 @@
 const variantStyles = {
-  primary: "bg-[#245A43] hover:bg-[#1E4D39] text-[#FFFDF9] dark:bg-[#C9A24A] dark:hover:bg-[#DC8D66] dark:text-[#1B150F] shadow-sm",
-  secondary: "bg-[#DDD2BA] hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#352A1D] dark:hover:bg-[#3F3027] dark:text-[#E9E0CD]",
+  primary: "bg-[#245A43] hover:bg-[#1E4D39] text-[#FFFDF9] dark:bg-[#C9A24A] dark:hover:bg-[#D8B354] dark:text-[#1B150F] shadow-[0_8px_18px_-10px_rgba(36,90,67,0.75)] dark:shadow-[0_8px_18px_-10px_rgba(201,162,74,0.55)]",
+  secondary: "bg-[#E9E2D6] hover:bg-[#DDD4C5] text-[#241B12] border border-[#241B12]/6 dark:bg-[#303129] dark:hover:bg-[#3A3A31] dark:text-[#E9E0CD] dark:border-[#E9E0CD]/8",
   outline: "bg-transparent border border-[#241B12]/18 hover:border-[#2F6B52] hover:bg-[#2F6B52]/8 text-[#241B12] dark:border-[#E9E0CD]/18 dark:hover:border-[#C9A24A] dark:hover:bg-[#C9A24A]/12 dark:text-[#E9E0CD]",
   ghost: "bg-transparent hover:bg-[#241B12]/6 text-[#5C4B3A] hover:text-[#241B12] dark:text-[#BDAE97] dark:hover:text-[#E9E0CD] dark:hover:bg-[#E9E0CD]/8",
   danger: "bg-transparent hover:bg-[#B8453A]/10 text-[#9F352B] dark:text-[#E6867A] dark:hover:bg-[#E6867A]/12"

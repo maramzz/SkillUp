@@ -33,7 +33,7 @@ const Navbar = () => {
     /* Desktop floating rounded top navbar */
   }
       <div className="hidden md:block sticky top-4 z-30 px-4 lg:px-6 pointer-events-none">
-        <header className="pointer-events-auto max-w-6xl mx-auto rounded-[20px] bg-[#F6F0E1]/92 dark:bg-[#261E15]/92 backdrop-blur-md border border-[#241B12]/9 dark:border-[#E9E0CD]/10 warm-shadow px-4 lg:px-5 py-2.5 flex items-center justify-between gap-3 lg:gap-6">
+        <header className="pointer-events-auto max-w-6xl mx-auto rounded-[24px] bg-[#FFFCF5]/90 dark:bg-[#25251F]/90 backdrop-blur-xl border border-[#241B12]/9 dark:border-[#E9E0CD]/10 warm-shadow px-4 lg:px-5 py-3 flex items-center justify-between gap-3 lg:gap-6">
           <button
     type="button"
     onClick={() => navigate("/")}
@@ -42,7 +42,7 @@ const Navbar = () => {
             <span className="w-9 h-9 rounded-xl bg-[#2F6B52]/14 dark:bg-[#C9A24A]/18 text-[#245A43] dark:text-[#D9B65F] flex items-center justify-center">
               <SkillUpMark size={20} />
             </span>
-            <span className="font-serif-display text-xl font-semibold tracking-tight">
+            <span className="navbar-brand font-serif-display text-xl font-semibold tracking-tight">
               SkillUp
             </span>
           </button>
@@ -83,7 +83,7 @@ const Navbar = () => {
       {
     /* Mobile compact top bar */
   }
-      <header className="md:hidden sticky top-0 z-30 h-[52px] bg-[#E9E0CD]/92 dark:bg-[#1B150F]/92 backdrop-blur-md border-b border-[#241B12]/8 dark:border-[#E9E0CD]/8 px-3.5 flex items-center justify-between gap-2">
+      <header className="md:hidden sticky top-0 z-30 h-[56px] bg-[#F3F0E7]/92 dark:bg-[#191A16]/92 backdrop-blur-xl border-b border-[#241B12]/8 dark:border-[#E9E0CD]/8 px-3.5 flex items-center justify-between gap-2">
         <button
     type="button"
     onClick={() => navigate("/")}
@@ -92,7 +92,7 @@ const Navbar = () => {
           <span className="w-8 h-8 rounded-xl bg-[#2F6B52]/14 dark:bg-[#C9A24A]/20 text-[#245A43] dark:text-[#D9B65F] flex items-center justify-center">
             <SkillUpMark size={18} />
           </span>
-          <span className="font-serif-display text-lg font-semibold tracking-tight">
+          <span className="navbar-brand font-serif-display text-lg font-semibold tracking-tight">
             SkillUp
           </span>
         </button>
@@ -123,7 +123,7 @@ const Navbar = () => {
   }
       <nav
     aria-label="Mobile navigation"
-    className="md:hidden fixed bottom-0 left-0 right-0 z-30 h-[62px] bg-[#F6F0E1]/95 dark:bg-[#241C14]/95 backdrop-blur-md border-t border-[#241B12]/10 dark:border-[#E9E0CD]/10 px-1.5 grid grid-cols-5 items-center"
+    className="md:hidden fixed bottom-0 left-0 right-0 z-30 h-[68px] bg-[#FFFCF5]/95 dark:bg-[#25251F]/95 backdrop-blur-xl border-t border-[#241B12]/10 dark:border-[#E9E0CD]/10 px-1.5 grid grid-cols-5 items-center"
   >
         {navLinks.map(({ label, path, Icon }) => <NavItem
     key={path}
