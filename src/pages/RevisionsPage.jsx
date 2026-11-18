@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useStudy } from "../context/StudyContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input, Textarea } from "../components/ui/Input";
 import { PageHeader } from "../components/ui/PageHeader";
 import { FilterPill, Tag } from "../components/ui/Tag";
-import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import {
   CheckIcon,
   ChecklistIcon,
@@ -33,6 +33,16 @@ function getLocalDateKey(date) {
 }
 const RevisionsPage = () => {
   const { tasks, addTask, toggleTask, deleteTask, language, t } = useStudy();
+  const shouldReduceMotion = useReducedMotion();
+  const layoutTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 420, damping: 36 };
+  const progressTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 180, damping: 28 };
+  const checkTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 520, damping: 24 };
   const [filter, setFilter] = useState("all");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -134,7 +144,7 @@ const RevisionsPage = () => {
           <div className="flex items-center gap-4">
             <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
               <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
-                <circle
+                <motion.circle
     cx="32"
     cy="32"
     r={radius}
@@ -152,8 +162,10 @@ const RevisionsPage = () => {
     strokeWidth="5"
     strokeLinecap="round"
     strokeDasharray={circumference}
-    strokeDashoffset={dashOffset}
-    className="text-[#B8893B] dark:text-[#DFB056] transition-all duration-500 ease-out"
+    initial={{ strokeDashoffset: dashOffset }}
+    animate={{ strokeDashoffset: dashOffset }}
+    transition={progressTransition}
+    className="text-[#B8893B] dark:text-[#DFB056]"
   />
               </svg>
               <span className="absolute text-xs font-semibold text-[#241B12] dark:text-[#E9E0CD] tabular-nums">
@@ -192,9 +204,10 @@ const RevisionsPage = () => {
     aria-label="Revision task completion progress"
     className="h-3 w-full rounded-full bg-[#DDD2BA] dark:bg-[#342821] overflow-hidden"
   >
-          <div
-    className="h-full rounded-full bg-gradient-to-r from-[#B8893B] via-[#2F6B52] to-[#8A9A7B] transition-all duration-500 ease-out"
-    style={{ width: `${completionPct}%` }}
+          <motion.div
+    className="h-full rounded-full bg-gradient-to-r from-[#B8893B] via-[#2F6B52] to-[#8A9A7B]"
+    animate={{ width: `${completionPct}%` }}
+    transition={progressTransition}
   />
         </div>
       </Card>
@@ -261,6 +274,7 @@ const RevisionsPage = () => {
     className="flex flex-wrap items-center gap-2"
   >
             <FilterPill
+    layoutId="revision-filter-active-pill"
     active={filter === "all"}
     count={tasks.length}
     onClick={() => setFilter("all")}
@@ -268,6 +282,7 @@ const RevisionsPage = () => {
               {t.revisions.filterAll}
             </FilterPill>
             <FilterPill
+    layoutId="revision-filter-active-pill"
     active={filter === "in_progress"}
     count={inProgressCount}
     onClick={() => setFilter("in_progress")}
@@ -275,6 +290,7 @@ const RevisionsPage = () => {
               {t.revisions.filterInProgress}
             </FilterPill>
             <FilterPill
+    layoutId="revision-filter-active-pill"
     active={filter === "done"}
     count={completedCount}
     onClick={() => setFilter("done")}
@@ -283,21 +299,37 @@ const RevisionsPage = () => {
             </FilterPill>
           </div>
 
-          {filteredTasks.length === 0 ? <Card className="py-12 px-6 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#DDD2BA] dark:bg-[#342821] text-[#5C4B3A] dark:text-[#BDAE97] flex items-center justify-center mx-auto">
-                <ChecklistIcon size={22} />
-              </div>
-              <h3 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-                {emptyStateCopy.title}
-              </h3>
-              <p className="text-sm text-[#5C4B3A] dark:text-[#BDAE97] max-w-sm mx-auto">
-                {emptyStateCopy.body}
-              </p>
-            </Card> : <StaggeredGrid className="space-y-3.5">
-              {filteredTasks.map((task) => {
+          <motion.div layout transition={layoutTransition} className="space-y-3.5">
+            <AnimatePresence mode="popLayout">
+              {filteredTasks.length === 0 ? <motion.div
+    key="empty-state"
+    initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+    transition={layoutTransition}
+  >
+                  <Card className="py-12 px-6 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[#DDD2BA] dark:bg-[#342821] text-[#5C4B3A] dark:text-[#BDAE97] flex items-center justify-center mx-auto">
+                      <ChecklistIcon size={22} />
+                    </div>
+                    <h3 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+                      {emptyStateCopy.title}
+                    </h3>
+                    <p className="text-sm text-[#5C4B3A] dark:text-[#BDAE97] max-w-sm mx-auto">
+                      {emptyStateCopy.body}
+                    </p>
+                  </Card>
+                </motion.div> : filteredTasks.map((task) => {
     const deadlineMeta = getDeadlineInfo(task.deadline, task.done);
-    return <Card
+    return <motion.div
       key={task.id}
+      layout
+      initial={shouldReduceMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
+      transition={layoutTransition}
+    >
+                    <Card
       padding="sm"
       hoverable
       className={`flex items-start gap-3 sm:gap-4 transition-opacity ${task.done ? "opacity-80" : ""}`}
@@ -313,7 +345,18 @@ const RevisionsPage = () => {
                       <span
       className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all duration-150 ${task.done ? "bg-[#6F8260] border-[#6F8260] text-[#FFFDF9] dark:bg-[#97A888] dark:border-[#97A888] dark:text-[#1B150F]" : "bg-transparent border-[#5C4B3A]/45 dark:border-[#BDAE97]/45"}`}
     >
-                        {task.done && <CheckIcon size={15} />}
+                        <AnimatePresence>
+                          {task.done && <motion.span
+                            key="checked"
+                            initial={shouldReduceMotion ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.45, rotate: -35 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.45, rotate: 35 }}
+                            transition={checkTransition}
+                            className="inline-flex"
+                          >
+                            <CheckIcon size={15} />
+                          </motion.span>}
+                        </AnimatePresence>
                       </span>
                     </button>
 
@@ -344,9 +387,11 @@ const RevisionsPage = () => {
     >
                       <TrashIcon size={18} />
                     </button>
-                  </Card>;
+                    </Card>
+                  </motion.div>;
   })}
-            </StaggeredGrid>}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </div>;

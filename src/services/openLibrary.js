@@ -1,12 +1,12 @@
 const BASE = "https://openlibrary.org";
 const CATEGORY_QUERY = {
-  All: "computer science psychology mathematics economics",
-  "Computer Science": "computer science algorithms data structures",
-  Psychology: "cognitive psychology memory",
-  Chemistry: "organic chemistry",
-  Economics: "macroeconomics",
-  Mathematics: "linear algebra calculus",
-  Literature: "literary theory criticism"
+  All: "textbook",
+  "Computer Science": "computer science",
+  Psychology: "psychology",
+  Chemistry: "chemistry",
+  Economics: "economics",
+  Mathematics: "mathematics",
+  Literature: "literature"
 };
 const TONES = {
   "Computer Science": "#3B3A36",
@@ -77,6 +77,7 @@ async function getBook(id) {
       const a = await fetch(`${BASE}${authorKey}.json`);
       if (a.ok) author = (await a.json()).name || author;
     } catch {
+       // ignore: storage unavailable or data is broken
     }
   }
   const cat = inferCategory(work.subjects, "All");

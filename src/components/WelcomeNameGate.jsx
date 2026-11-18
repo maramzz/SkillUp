@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useStudy } from "../context/StudyContext";
 import { Card } from "./ui/Card";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
 import {
   ArrowRightIcon,
-  MoonIcon,
-  SkillUpMark,
-  SunIcon
+  SkillUpMark
 } from "./icons/StudyIcons";
+import { ThemeToggleButton } from "./ui/ThemeToggleButton";
+import { CharacterReveal } from "./ui/CharacterReveal";
+
 const WelcomeNameGate = () => {
+  const shouldReduceMotion = useReducedMotion();
   const {
     saveStudentName,
     t,
@@ -32,11 +34,14 @@ const WelcomeNameGate = () => {
   };
   return <motion.div
     key="welcome-name-gate"
-    initial={{ opacity: 0 }}
+    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
     animate={{ opacity: 1 }}
-    exit={{ opacity: 0, y: -12 }}
-    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-    className="min-h-screen flex flex-col justify-between px-4 py-6 sm:px-6"
+    exit={shouldReduceMotion ? undefined : { opacity: 0, y: -12 }}
+    transition={{
+      duration: shouldReduceMotion ? 0 : 0.25,
+      ease: [0.16, 1, 0.3, 1]
+    }}
+    className="app-shell min-h-screen flex flex-col justify-between px-4 py-6 sm:px-6"
   >
       {
     /* Top bar with logo + FR/EN & theme toggles */
@@ -61,14 +66,12 @@ const WelcomeNameGate = () => {
             {language === "en" ? "FR / EN" : "EN / FR"}
           </button>
 
-          <button
-    type="button"
-    onClick={toggleTheme}
-    aria-label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
-    className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA] hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#352A1D] dark:hover:bg-[#443523] dark:text-[#E9E0CD] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
-  >
-            {theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}
-          </button>
+          <ThemeToggleButton
+            theme={theme}
+            onToggle={toggleTheme}
+            label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA] hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#352A1D] dark:hover:bg-[#443523] dark:text-[#E9E0CD] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+          />
         </div>
       </div>
 
@@ -84,9 +87,11 @@ const WelcomeNameGate = () => {
   >
           <Card padding="lg" className="space-y-6">
             <div className="space-y-2 text-center">
-              <p className="font-handwritten text-2xl sm:text-[28px] text-[#245A43] dark:text-[#D9B65F]">
-                {t.home.welcomeKicker}
-              </p>
+              <CharacterReveal
+                key={language}
+                text={t.home.welcomeKicker}
+                className="font-handwritten welcome-kicker text-[#245A43] dark:text-[#D9B65F] leading-snug"
+              />
               <h1 className="font-serif-display text-3xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
                 {t.home.welcomeTitle}
               </h1>

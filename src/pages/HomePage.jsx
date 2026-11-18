@@ -4,6 +4,7 @@ import { HERO_DESK_ILLUSTRATION } from "../data/resources";
 import { useStudy } from "../context/StudyContext";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { CharacterReveal } from "../components/ui/CharacterReveal";
 import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import {
   ArrowRightIcon,
@@ -88,9 +89,10 @@ const HomePage = () => {
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         <div className="lg:col-span-6 flex flex-col justify-center space-y-5 py-2">
           <div className="group flex flex-wrap items-baseline gap-2.5">
-            <p className="font-handwritten text-2xl sm:text-[28px] text-[#245A43] dark:text-[#D9B65F] leading-snug">
-              {getGreeting()}
-            </p>
+            <CharacterReveal
+              text={getGreeting()}
+              className="font-handwritten text-2xl sm:text-[28px] text-[#245A43] dark:text-[#D9B65F] leading-snug"
+            />
             <button
     type="button"
     onClick={resetStudentName}

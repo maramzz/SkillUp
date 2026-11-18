@@ -1,3 +1,4 @@
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useStudy } from "../context/StudyContext";
 import { CATEGORY_LABELS } from "../i18n/translations";
 import { BookCover } from "../components/ui/BookCover";
@@ -5,11 +6,14 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { HeartButton } from "../components/ui/HeartButton";
 import { PageHeader } from "../components/ui/PageHeader";
-import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import { Tag } from "../components/ui/Tag";
 import { BooksIcon, EmptyShelfIllustration } from "../components/icons/StudyIcons";
 const FavoritesPage = () => {
   const { favoriteBooks, toggleFavorite, navigate, language, t } = useStudy();
+  const shouldReduceMotion = useReducedMotion();
+  const layoutTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 420, damping: 36 };
   const shelves = [];
   for (let i = 0; i < favoriteBooks.length; i += 3) {
     shelves.push(favoriteBooks.slice(i, i + 3));
@@ -28,7 +32,15 @@ const FavoritesPage = () => {
           </Button>}
       />
 
-      {favoriteBooks.length === 0 ? <Card className="py-14 px-6 text-center max-w-lg mx-auto space-y-5">
+      <AnimatePresence mode="wait">
+      {favoriteBooks.length === 0 ? <motion.div
+    key="empty-state"
+    initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+    transition={layoutTransition}
+  >
+          <Card className="py-14 px-6 text-center max-w-lg mx-auto space-y-5">
           <div className="flex justify-center text-[#5C4B3A] dark:text-[#BDAE97]">
             <EmptyShelfIllustration className="w-56 h-34" />
           </div>
@@ -45,14 +57,35 @@ const FavoritesPage = () => {
               {t.favorites.browseLibrary}
             </Button>
           </div>
-        </Card> : <div className="space-y-12">
-          {shelves.map((shelfBooks, shelfIndex) => <section
+          </Card>
+        </motion.div> : <motion.div
+    key="shelves"
+    initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+    transition={layoutTransition}
+  >
+          <LayoutGroup id="favorite-bookshelf">
+          <motion.div layout className="space-y-12">
+          {shelves.map((shelfBooks, shelfIndex) => <motion.section
     key={shelfIndex}
+    layout
+    transition={layoutTransition}
     aria-label={t.favorites.shelfRowLabel(shelfIndex + 1)}
     className="relative"
   >
-              <StaggeredGrid className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8 px-3 sm:px-8 items-end">
-                {shelfBooks.map((book) => <div key={book.id} className="group relative flex flex-col">
+              <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8 px-3 sm:px-8 items-end">
+                <AnimatePresence mode="popLayout">
+                {shelfBooks.map((book) => <motion.div
+    key={book.id}
+    layout
+    layoutId={`favorite-book-${book.id}`}
+    initial={shouldReduceMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.97 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
+    transition={layoutTransition}
+    className="group relative flex flex-col"
+  >
                     <div
     onClick={() => navigate(`/ressources/${book.id}`)}
     role="button"
@@ -100,8 +133,9 @@ const FavoritesPage = () => {
                         {CATEGORY_LABELS[language][book.category]}
                       </Tag>
                     </div>
-                  </div>)}
-              </StaggeredGrid>
+                  </motion.div>)}
+                </AnimatePresence>
+              </motion.div>
 
               <div
     aria-hidden="true"
@@ -114,8 +148,11 @@ const FavoritesPage = () => {
                 </div>
                 <div className="h-12" />
               </div>
-            </section>)}
-        </div>}
+            </motion.section>)}
+          </motion.div>
+          </LayoutGroup>
+        </motion.div>}
+      </AnimatePresence>
     </div>;
 };
 export {

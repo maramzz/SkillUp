@@ -17,12 +17,21 @@ const AppContent = () => {
   const location = useLocation();
   const shouldReduceMotion = useReducedMotion();
   const { hasEnteredName } = useStudy();
-  if (!hasEnteredName) {
-    return <div className="app-shell min-h-screen">
-        <WelcomeNameGate />
-      </div>;
-  }
-  return <div className="app-shell min-h-screen flex flex-col text-[#241B12] dark:text-[#E9E0CD]">
+  return <AnimatePresence mode="wait" initial={!hasEnteredName}>
+    {!hasEnteredName ? (
+      <WelcomeNameGate key="welcome-name-gate" />
+    ) : (
+      <motion.div
+        key="study-app"
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.36,
+          ease: [0.16, 1, 0.3, 1]
+        }}
+        className="app-shell min-h-screen flex flex-col text-[#241B12] dark:text-[#E9E0CD]"
+      >
       <Navbar />
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-8 md:pb-12">
         <AnimatePresence mode="wait" initial={false}>
@@ -65,7 +74,9 @@ const AppContent = () => {
           </div>
         </div>
       </footer>
-    </div>;
+      </motion.div>
+    )}
+  </AnimatePresence>;
 };
 function App() {
   return <StudyProvider>

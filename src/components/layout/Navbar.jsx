@@ -4,12 +4,11 @@ import {
   ChecklistIcon,
   HeartIcon,
   HomeIcon,
-  MoonIcon,
   QuillIcon,
-  SkillUpMark,
-  SunIcon
+  SkillUpMark
 } from "../icons/StudyIcons";
 import { NavItem } from "../ui/NavItem";
+import { ThemeToggleButton } from "../ui/ThemeToggleButton";
 const Navbar = () => {
   const {
     
@@ -67,15 +66,13 @@ const Navbar = () => {
               {language === "en" ? "FR / EN" : "EN / FR"}
             </button>
 
-            <button
-    type="button"
-    onClick={toggleTheme}
-    aria-label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
-    title={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
-    className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA]/80 hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#352A1D] dark:hover:bg-[#443523] dark:text-[#E9E0CD] shrink-0 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:focus-visible:ring-[#C9A24A]"
-  >
-              {theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}
-            </button>
+            <ThemeToggleButton
+              theme={theme}
+              onToggle={toggleTheme}
+              label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
+              title={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA]/80 hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#352A1D] dark:hover:bg-[#443523] dark:text-[#E9E0CD] shrink-0 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:focus-visible:ring-[#C9A24A]"
+            />
           </div>
         </header>
       </div>
@@ -107,14 +104,12 @@ const Navbar = () => {
             {language.toUpperCase()}
           </button>
 
-          <button
-    type="button"
-    onClick={toggleTheme}
-    aria-label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
-    className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA] text-[#241B12] dark:bg-[#30261B] dark:text-[#E9E0CD] shrink-0 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
-  >
-            {theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}
-          </button>
+          <ThemeToggleButton
+            theme={theme}
+            onToggle={toggleTheme}
+            label={theme === "dark" ? t.nav.switchToLight : t.nav.switchToDark}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-[#DDD2BA] text-[#241B12] dark:bg-[#30261B] dark:text-[#E9E0CD] shrink-0 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+          />
         </div>
       </header>
 

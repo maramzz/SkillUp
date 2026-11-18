@@ -57,6 +57,27 @@
   }
 }
 
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning body *,
+html.theme-transitioning body *::before,
+html.theme-transitioning body *::after {
+  transition-property: background-color, background-image, border-color, box-shadow, color, fill, outline-color, stroke, text-decoration-color;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning,
+  html.theme-transitioning body,
+  html.theme-transitioning body *,
+  html.theme-transitioning body *::before,
+  html.theme-transitioning body *::after {
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
 .font-serif-display {
   font-family: 'Fraunces', Georgia, serif;
 }
@@ -216,6 +237,7 @@
 .font-serif-display { letter-spacing: -0.02em; }
 .navbar-brand { font-weight: 700 !important; }
 .font-handwritten { font-size: 1.12em !important; line-height: 1.35; }
+.font-handwritten.welcome-kicker { font-size: clamp(2rem, 3.2vw, 2.5rem) !important; }
 .paper-grain-overlay { display: none; }
 
 @media (hover: hover) and (pointer: fine) {

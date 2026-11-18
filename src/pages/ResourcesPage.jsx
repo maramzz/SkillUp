@@ -135,6 +135,7 @@ const ResourcesPage = () => {
   >
           {RESOURCE_CATEGORIES.map((category) => <FilterPill
     key={category}
+    layoutId="resource-category-active-pill"
     active={selectedCategory === category}
     onClick={() => setSelectedCategory(category)}
   >

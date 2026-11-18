@@ -14,6 +14,7 @@ const StudyProvider = ({ children }) => {
   const location = useLocation();
   const routerNavigate = useNavigate();
   const currentPath = location.pathname;
+  const themeTransitionTimeout = useRef(null);
   const [theme, setThemeState] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.theme);
     if (saved === "light" || saved === "dark") return saved;
@@ -80,6 +81,12 @@ const StudyProvider = ({ children }) => {
     }
     localStorage.setItem(STORAGE_KEYS.theme, theme);
   }, [theme]);
+  useEffect(() => () => {
+    if (themeTransitionTimeout.current !== null) {
+      window.clearTimeout(themeTransitionTimeout.current);
+    }
+    document.documentElement.classList.remove("theme-transitioning");
+  }, []);
   useEffect(() => {
     document.documentElement.lang = language;
     localStorage.setItem(STORAGE_KEYS.language, language);
@@ -104,10 +111,26 @@ const StudyProvider = ({ children }) => {
     routerNavigate(path);
     window.scrollTo({ top: 0, behavior: "auto" });
   };
+  const prepareThemeTransition = () => {
+    const root = document.documentElement;
+    root.classList.add("theme-transitioning");
+
+    if (themeTransitionTimeout.current !== null) {
+      window.clearTimeout(themeTransitionTimeout.current);
+    }
+
+    themeTransitionTimeout.current = window.setTimeout(() => {
+      root.classList.remove("theme-transitioning");
+      themeTransitionTimeout.current = null;
+    }, 360);
+  };
   const toggleTheme = () => {
+    prepareThemeTransition();
     setThemeState((prev) => prev === "light" ? "dark" : "light");
   };
   const setTheme = (mode) => {
+    if (mode === theme) return;
+    prepareThemeTransition();
     setThemeState(mode);
   };
   const toggleLanguage = () => {
