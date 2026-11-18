@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { RESOURCE_CATEGORIES } from "../data/resources";
 import { useStudy } from "../context/StudyContext";
 import { CATEGORY_LABELS } from "../i18n/translations";
 import { BookCover } from "../components/ui/BookCover";
@@ -6,23 +8,83 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { HeartButton } from "../components/ui/HeartButton";
 import { PageHeader } from "../components/ui/PageHeader";
-import { Tag } from "../components/ui/Tag";
+import { FilterPill, Tag } from "../components/ui/Tag";
 import { BooksIcon, EmptyShelfIllustration } from "../components/icons/StudyIcons";
+
+const AnimatedBookCount = ({ count, shouldReduceMotion }) => (
+  <span className="relative inline-grid min-w-[1ch] place-items-center overflow-hidden align-middle tabular-nums">
+    <span aria-hidden="true">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={count}
+          initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.18, ease: "easeOut" }}
+          className="col-start-1 row-start-1"
+        >
+          {count}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+    <span className="sr-only">{count}</span>
+  </span>
+);
+
+const AnimatedCountSubtitle = ({ count, text, shouldReduceMotion }) => (
+  <span aria-live="polite" aria-atomic="true">
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.span
+        key={count}
+        initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -4 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
+        className="inline-block"
+      >
+        {text}
+      </motion.span>
+    </AnimatePresence>
+  </span>
+);
+
 const FavoritesPage = () => {
   const { favoriteBooks, toggleFavorite, navigate, language, t } = useStudy();
   const shouldReduceMotion = useReducedMotion();
+  const [selectedDiscipline, setSelectedDiscipline] = useState("All");
   const layoutTransition = shouldReduceMotion
     ? { duration: 0 }
     : { type: "spring", stiffness: 420, damping: 36 };
+  const disciplines = RESOURCE_CATEGORIES
+    .filter((category) => category !== "All")
+    .map((category) => ({
+      category,
+      count: favoriteBooks.filter((book) => book.category === category).length
+    }))
+    .filter(({ count }) => count > 0);
+  const showDisciplineFilter = disciplines.length > 1;
+  const activeDiscipline = showDisciplineFilter
+    && disciplines.some(({ category }) => category === selectedDiscipline)
+    ? selectedDiscipline
+    : "All";
+  const visibleBooks = activeDiscipline === "All"
+    ? favoriteBooks
+    : favoriteBooks.filter((book) => book.category === activeDiscipline);
   const shelves = [];
-  for (let i = 0; i < favoriteBooks.length; i += 3) {
-    shelves.push(favoriteBooks.slice(i, i + 3));
+  for (let i = 0; i < visibleBooks.length; i += 3) {
+    shelves.push(visibleBooks.slice(i, i + 3));
   }
   return <div className="space-y-8">
       <PageHeader
         eyebrow={t.favorites.kicker}
         title={t.favorites.title}
-        description={favoriteBooks.length === 0 ? t.favorites.emptySubtitle : t.favorites.countSubtitle(favoriteBooks.length)}
+        description={favoriteBooks.length === 0
+          ? t.favorites.emptySubtitle
+          : <AnimatedCountSubtitle
+              count={favoriteBooks.length}
+              text={t.favorites.countSubtitle(favoriteBooks.length)}
+              shouldReduceMotion={shouldReduceMotion}
+            />}
         actions={favoriteBooks.length > 0 && <Button
     variant="secondary"
     onClick={() => navigate("/ressources")}
@@ -31,6 +93,37 @@ const FavoritesPage = () => {
             {t.favorites.addMore}
           </Button>}
       />
+
+      <AnimatePresence initial={false}>
+        {showDisciplineFilter && <motion.div
+          key="discipline-filter"
+          initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+          transition={layoutTransition}
+          role="group"
+          aria-label={t.favorites.filterAriaLabel}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <FilterPill
+            layoutId="favorite-discipline-active-pill"
+            active={activeDiscipline === "All"}
+            onClick={() => setSelectedDiscipline("All")}
+          >
+            {CATEGORY_LABELS[language].All}
+            <AnimatedBookCount count={favoriteBooks.length} shouldReduceMotion={shouldReduceMotion} />
+          </FilterPill>
+          {disciplines.map(({ category, count }) => <FilterPill
+            key={category}
+            layoutId="favorite-discipline-active-pill"
+            active={activeDiscipline === category}
+            onClick={() => setSelectedDiscipline(category)}
+          >
+            {CATEGORY_LABELS[language][category]}
+            <AnimatedBookCount count={count} shouldReduceMotion={shouldReduceMotion} />
+          </FilterPill>)}
+        </motion.div>}
+      </AnimatePresence>
 
       <AnimatePresence mode="wait">
       {favoriteBooks.length === 0 ? <motion.div

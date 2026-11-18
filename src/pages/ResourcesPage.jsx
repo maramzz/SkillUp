@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RESOURCE_CATEGORIES } from "../data/resources";
 import { searchBooks } from "../services/openLibrary";
 import { useStudy } from "../context/StudyContext";
@@ -30,6 +30,7 @@ const ResourcesPage = () => {
   const [numFound, setNumFound] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [sortOrder, setSortOrder] = useState("curated");
   const loadCatalog = useCallback(
     async (query, category, pageNum, append) => {
       if (append) {
@@ -67,6 +68,26 @@ const ResourcesPage = () => {
   useEffect(() => {
     loadCatalog(activeQuery, selectedCategory, 1, false);
   }, [activeQuery, selectedCategory, loadCatalog]);
+  const sortedBooks = useMemo(() => {
+    if (sortOrder === "curated") return books;
+
+    const sorted = [...books];
+    if (sortOrder === "title") {
+      const collator = new Intl.Collator(language, {
+        numeric: true,
+        sensitivity: "base"
+      });
+      return sorted.sort((a, b) => collator.compare(a.title, b.title));
+    }
+
+    return sorted.sort((a, b) => {
+      const yearA = Number.isFinite(a.year) ? a.year : null;
+      const yearB = Number.isFinite(b.year) ? b.year : null;
+      if (yearA === null) return yearB === null ? 0 : 1;
+      if (yearB === null) return -1;
+      return yearB - yearA;
+    });
+  }, [books, sortOrder, language]);
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setActiveQuery(searchInput.trim());
@@ -213,12 +234,24 @@ const ResourcesPage = () => {
     /* State 4: Book Grid + Pagination ("Load 20 more") */
   }
       {viewState === "ready" && books.length > 0 && <div className="space-y-8">
-          <div className="flex items-center justify-between text-xs text-[#5C4B3A] dark:text-[#BDAE97] tabular-nums">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#5C4B3A] dark:text-[#BDAE97] tabular-nums">
             <span>{t.resources.showingCount(books.length, Math.max(books.length, numFound))}</span>
+            <label className="inline-flex items-center gap-2">
+              <span>{t.resources.sortBy}</span>
+              <select
+                value={sortOrder}
+                onChange={(event) => setSortOrder(event.target.value)}
+                className="min-h-10 rounded-xl border border-[#241B12]/10 bg-[#FFFCF5] px-3 py-2 text-sm text-[#241B12] shadow-sm dark:border-[#E9E0CD]/10 dark:bg-[#25251F] dark:text-[#E9E0CD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+              >
+                <option value="curated">{t.resources.sortCurated}</option>
+                <option value="title">{t.resources.sortTitle}</option>
+                <option value="newest">{t.resources.sortNewest}</option>
+              </select>
+            </label>
           </div>
 
           <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            {books.map((book) => {
+            {sortedBooks.map((book) => {
     const fav = isFavorite(book.id);
     return <Card
       key={book.id}
