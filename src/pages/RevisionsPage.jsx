@@ -1,0 +1,338 @@
+import { useMemo, useState } from "react";
+import { useStudy } from "../context/StudyContext";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
+import { Input, Textarea } from "../components/ui/Input";
+import { FilterPill, Tag } from "../components/ui/Tag";
+import {
+  CheckIcon,
+  ChecklistIcon,
+  ClockIcon,
+  FlameIcon,
+  PlusIcon,
+  TrashIcon
+} from "../components/icons/StudyIcons";
+function isValidIsoDate(dateStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const [yStr, mStr, dStr] = dateStr.split("-");
+  const y = Number(yStr);
+  const m = Number(mStr);
+  const d = Number(dStr);
+  if (y < 2020 || y > 2100) return false;
+  const parsed = new Date(Date.UTC(y, m - 1, d));
+  return parsed.getUTCFullYear() === y && parsed.getUTCMonth() === m - 1 && parsed.getUTCDate() === d;
+}
+const RevisionsPage = () => {
+  const { tasks, addTask, toggleTask, deleteTask, language, t } = useStudy();
+  const [filter, setFilter] = useState("all");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState(() => {
+    const d = /* @__PURE__ */ new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().slice(0, 10);
+  });
+  const [titleError, setTitleError] = useState("");
+  const [deadlineError, setDeadlineError] = useState("");
+  const getDeadlineInfo = (dateStr, done) => {
+    if (!dateStr || !isValidIsoDate(dateStr)) {
+      return { label: t.revisions.badgeNoDeadline, tone: "neutral" };
+    }
+    const today = /* @__PURE__ */ new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = /* @__PURE__ */ new Date(`${dateStr}T00:00:00`);
+    const diffDays = Math.round((target.getTime() - today.getTime()) / (1e3 * 60 * 60 * 24));
+    const formatted = target.toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", {
+      month: "short",
+      day: "numeric"
+    });
+    if (done) {
+      return { label: t.revisions.badgeCompleted(formatted), tone: "sage" };
+    }
+    if (diffDays < 0) {
+      return { label: t.revisions.badgeOverdue(formatted), tone: "danger" };
+    }
+    if (diffDays === 0) {
+      return { label: t.revisions.badgeToday(formatted), tone: "terracotta" };
+    }
+    if (diffDays <= 2) {
+      return { label: t.revisions.badgeSoon(formatted), tone: "gold" };
+    }
+    return { label: t.revisions.badgeDue(formatted), tone: "neutral" };
+  };
+  const completedCount = tasks.filter((item) => item.done).length;
+  const inProgressCount = tasks.length - completedCount;
+  const completionPct = tasks.length === 0 ? 0 : Math.round(completedCount / tasks.length * 100);
+  const streakDays = 4 + completedCount;
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((item) => {
+      if (filter === "in_progress") return !item.done;
+      if (filter === "done") return item.done;
+      return true;
+    });
+  }, [tasks, filter]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let hasErr = false;
+    if (!title.trim()) {
+      setTitleError(t.revisions.errEmptyTitle);
+      hasErr = true;
+    } else {
+      setTitleError("");
+    }
+    if (!isValidIsoDate(deadline)) {
+      setDeadlineError(t.revisions.errInvalidDate);
+      hasErr = true;
+    } else {
+      setDeadlineError("");
+    }
+    if (hasErr) return;
+    addTask({ title, description, deadline });
+    setTitle("");
+    setDescription("");
+  };
+  const radius = 26;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - completionPct / 100 * circumference;
+  const emptyStateCopy = tasks.length === 0 ? { title: t.revisions.emptyAllTitle, body: t.revisions.emptyAllBody } : filter === "in_progress" ? { title: t.revisions.emptyInProgressTitle, body: t.revisions.emptyInProgressBody } : filter === "done" ? { title: t.revisions.emptyDoneTitle, body: t.revisions.emptyDoneBody } : { title: t.revisions.emptyAllTitle, body: t.revisions.emptyAllBody };
+  return <div className="space-y-8">
+      <div className="space-y-1.5">
+        <p className="font-handwritten text-2xl text-[#245A43] dark:text-[#D9B65F]">
+          {t.revisions.kicker}
+        </p>
+        <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+          {t.revisions.title}
+        </h1>
+        <p className="text-sm sm:text-[15px] text-[#5C4B3A] dark:text-[#BDAE97]">
+          {t.revisions.subtitle}
+        </p>
+      </div>
+
+      {
+    /* Study Streak Progress Card */
+  }
+      <Card padding="lg" className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+              <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
+                <circle
+    cx="32"
+    cy="32"
+    r={radius}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    className="text-[#DDD2BA] dark:text-[#342821]"
+  />
+                <circle
+    cx="32"
+    cy="32"
+    r={radius}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeDasharray={circumference}
+    strokeDashoffset={dashOffset}
+    className="text-[#B8893B] dark:text-[#DFB056] transition-all duration-500 ease-out"
+  />
+              </svg>
+              <span className="absolute text-xs font-semibold text-[#241B12] dark:text-[#E9E0CD] tabular-nums">
+                {completionPct}%
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#9E6E14] dark:text-[#DFB056]">
+                  <FlameIcon size={17} />
+                  <span className="tabular-nums">{t.revisions.streakLabel(streakDays)}</span>
+                </span>
+              </div>
+              <h2 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD] mt-0.5 tabular-nums">
+                {t.revisions.progressTitle(completedCount, tasks.length)}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#5C4B3A] dark:text-[#BDAE97]">
+                {inProgressCount === 0 && tasks.length > 0 ? t.revisions.allCaughtUpSub : t.revisions.remainingSub(inProgressCount)}
+              </p>
+            </div>
+          </div>
+
+          <div className="sm:text-right">
+            <Tag tone={completionPct === 100 && tasks.length > 0 ? "sage" : "gold"}>
+              {completionPct === 100 && tasks.length > 0 ? t.revisions.goalReached : t.revisions.activeStreak}
+            </Tag>
+          </div>
+        </div>
+
+        <div
+    role="progressbar"
+    aria-valuenow={completionPct}
+    aria-valuemin={0}
+    aria-valuemax={100}
+    aria-label="Revision task completion progress"
+    className="h-3 w-full rounded-full bg-[#DDD2BA] dark:bg-[#342821] overflow-hidden"
+  >
+          <div
+    className="h-full rounded-full bg-gradient-to-r from-[#B8893B] via-[#2F6B52] to-[#8A9A7B] transition-all duration-500 ease-out"
+    style={{ width: `${completionPct}%` }}
+  />
+        </div>
+      </Card>
+
+      {
+    /* Main Split: Add Form + Task List */
+  }
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <Card padding="lg" className="lg:col-span-4 space-y-5">
+          <div className="space-y-1">
+            <h2 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+              {t.revisions.formTitle}
+            </h2>
+            <p className="text-xs text-[#5C4B3A] dark:text-[#BDAE97]">
+              {t.revisions.formSubtitle}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <Input
+    label={t.revisions.fieldTitle}
+    value={title}
+    onChange={(e) => {
+      setTitle(e.target.value);
+      if (titleError) setTitleError("");
+    }}
+    placeholder={t.revisions.fieldTitlePlaceholder}
+    error={titleError}
+  />
+
+            <Textarea
+    label={t.revisions.fieldDesc}
+    rows={3}
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}
+    placeholder={t.revisions.fieldDescPlaceholder}
+  />
+
+            <Input
+    label={t.revisions.fieldDeadline}
+    type="date"
+    value={deadline}
+    onChange={(e) => {
+      setDeadline(e.target.value);
+      if (deadlineError) setDeadlineError("");
+    }}
+    error={deadlineError}
+  />
+
+            <Button
+    type="submit"
+    className="w-full"
+    leftIcon={<PlusIcon size={18} />}
+  >
+              {t.revisions.addTaskBtn}
+            </Button>
+          </form>
+        </Card>
+
+        <div className="lg:col-span-8 space-y-5">
+          <div
+    role="group"
+    aria-label="Filter revision tasks"
+    className="flex flex-wrap items-center gap-2"
+  >
+            <FilterPill
+    active={filter === "all"}
+    count={tasks.length}
+    onClick={() => setFilter("all")}
+  >
+              {t.revisions.filterAll}
+            </FilterPill>
+            <FilterPill
+    active={filter === "in_progress"}
+    count={inProgressCount}
+    onClick={() => setFilter("in_progress")}
+  >
+              {t.revisions.filterInProgress}
+            </FilterPill>
+            <FilterPill
+    active={filter === "done"}
+    count={completedCount}
+    onClick={() => setFilter("done")}
+  >
+              {t.revisions.filterDone}
+            </FilterPill>
+          </div>
+
+          {filteredTasks.length === 0 ? <Card className="py-12 px-6 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#DDD2BA] dark:bg-[#342821] text-[#5C4B3A] dark:text-[#BDAE97] flex items-center justify-center mx-auto">
+                <ChecklistIcon size={22} />
+              </div>
+              <h3 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+                {emptyStateCopy.title}
+              </h3>
+              <p className="text-sm text-[#5C4B3A] dark:text-[#BDAE97] max-w-sm mx-auto">
+                {emptyStateCopy.body}
+              </p>
+            </Card> : <div className="space-y-3.5">
+              {filteredTasks.map((task) => {
+    const deadlineMeta = getDeadlineInfo(task.deadline, task.done);
+    return <Card
+      key={task.id}
+      padding="sm"
+      hoverable
+      className={`flex items-start gap-3 sm:gap-4 transition-opacity ${task.done ? "opacity-80" : ""}`}
+    >
+                    <button
+      type="button"
+      role="checkbox"
+      aria-checked={task.done}
+      aria-label={task.done ? `Mark "${task.title}" as in progress` : `Mark "${task.title}" as done`}
+      onClick={() => toggleTask(task.id)}
+      className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] hover:bg-[#DDD2BA]/60 dark:hover:bg-[#342821]/70 transition-colors"
+    >
+                      <span
+      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all duration-150 ${task.done ? "bg-[#6F8260] border-[#6F8260] text-[#FFFDF9] dark:bg-[#97A888] dark:border-[#97A888] dark:text-[#1B150F]" : "bg-transparent border-[#5C4B3A]/45 dark:border-[#BDAE97]/45"}`}
+    >
+                        {task.done && <CheckIcon size={15} />}
+                      </span>
+                    </button>
+
+                    <div className="flex-1 min-w-0 py-1.5 space-y-2">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <h3
+      className={`font-serif-display text-lg font-semibold leading-snug transition-colors ${task.done ? "line-through text-[#5C4B3A] dark:text-[#BDAE97]" : "text-[#241B12] dark:text-[#E9E0CD]"}`}
+    >
+                          {task.title}
+                        </h3>
+                        <Tag tone={deadlineMeta.tone} icon={<ClockIcon size={13} />}>
+                          {deadlineMeta.label}
+                        </Tag>
+                      </div>
+
+                      {task.description && <p
+      className={`text-sm leading-relaxed text-[#5C4B3A] dark:text-[#BDAE97] ${task.done ? "line-through opacity-75" : ""}`}
+    >
+                          {task.description}
+                        </p>}
+                    </div>
+
+                    <button
+      type="button"
+      onClick={() => deleteTask(task.id)}
+      aria-label={`Delete task "${task.title}"`}
+      className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-[#5C4B3A] hover:text-[#9F352B] hover:bg-[#B8453A]/10 dark:text-[#BDAE97] dark:hover:text-[#E6867A] dark:hover:bg-[#E6867A]/12 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    >
+                      <TrashIcon size={18} />
+                    </button>
+                  </Card>;
+  })}
+            </div>}
+        </div>
+      </div>
+    </div>;
+};
+export {
+  RevisionsPage
+};
