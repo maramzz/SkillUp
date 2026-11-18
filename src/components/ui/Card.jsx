@@ -11,6 +11,7 @@ const paddingClasses = {
   lg: "p-6 sm:p-8"
 };
 const Card = ({
+  as: Component = "div",
   variant = "surface",
   hoverable = false,
   padding = "md",
@@ -18,12 +19,12 @@ const Card = ({
   children,
   ...rest
 }) => {
-  return <div
-    className={`rounded-[24px] ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? "warm-shadow-hover" : ""} ${className}`}
+  return <Component
+    className={`rounded-[20px] ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverable ? "warm-shadow-hover" : ""} ${className}`}
     {...rest}
   >
       {children}
-    </div>;
+    </Component>;
 };
 export {
   Card

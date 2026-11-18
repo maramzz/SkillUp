@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { StudyProvider, useStudy } from "./context/StudyContext";
 import { Navbar } from "./components/layout/Navbar";
 import { WelcomeNameGate } from "./components/WelcomeNameGate";
@@ -16,22 +16,15 @@ const DetailRoute = () => {
 const AppContent = () => {
   const location = useLocation();
   const shouldReduceMotion = useReducedMotion();
-  const { t, hasEnteredName } = useStudy();
+  const { hasEnteredName } = useStudy();
   if (!hasEnteredName) {
     return <div className="app-shell min-h-screen">
         <WelcomeNameGate />
       </div>;
   }
-  const links = [
-    { to: "/", label: t.nav.home },
-    { to: "/ressources", label: t.nav.resources },
-    { to: "/favoris", label: t.nav.favorites },
-    { to: "/revisions", label: t.nav.revisions },
-    { to: "/assistant", label: t.nav.assistant }
-  ];
   return <div className="app-shell min-h-screen flex flex-col text-[#241B12] dark:text-[#E9E0CD]">
       <Navbar />
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 md:pb-12">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-8 md:pb-12">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
@@ -55,14 +48,21 @@ const AppContent = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-      <footer className="hidden md:block border-t border-[#241B12]/10 dark:border-[#E9E0CD]/10 py-6 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-6 text-sm text-[#5C4B3A] dark:text-[#BDAE97]">
-          <p className="font-serif-display text-base text-[#241B12] dark:text-[#E9E0CD]">SkillUp</p>
-          <nav aria-label="Footer" className="flex items-center gap-5">
-            {links.map((l) => <Link key={l.to} to={l.to} className="hover:text-[#241B12] dark:hover:text-[#E9E0CD]">
-                {l.label}
-              </Link>)}
-          </nav>
+      <footer className="mt-8 border-t border-[#241B12]/10 dark:border-[#E9E0CD]/10 bg-[#FFFCF5]/45 dark:bg-[#25251F]/35">
+        <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-6 pb-28 md:py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="flex items-center gap-3 min-w-0">
+            <p className="font-serif-display text-base font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+              SkillUp
+            </p>
+            <span aria-hidden="true" className="w-1 h-1 rounded-full bg-[#B8893B] dark:bg-[#DFB056]" />
+            <p className="text-xs font-medium tracking-wide text-[#76614A] dark:text-[#C7B697]">
+              made with care
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-[#5C4B3A] dark:text-[#BDAE97] sm:shrink-0">
+            <span aria-hidden="true" className="w-7 h-px bg-[#B8893B]/70 dark:bg-[#DFB056]/70" />
+            <span>© {new Date().getFullYear()} SkillUp</span>
+          </div>
         </div>
       </footer>
     </div>;

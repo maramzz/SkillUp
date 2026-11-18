@@ -156,7 +156,7 @@ const ResourceDetailPage = ({ resourceId }) => {
     /* Left: Large cover (with clean no-cover state) */
   }
         <div className="lg:col-span-5 max-w-sm lg:max-w-none mx-auto w-full space-y-3">
-          <div className="p-3 sm:p-4 rounded-[24px] bg-[#F6F0E1] dark:bg-[#261E15] border border-[#241B12]/8 dark:border-[#E9E0CD]/10 warm-shadow">
+          <div className="p-3 sm:p-4 rounded-[20px] bg-[#F6F0E1] dark:bg-[#261E15] border border-[#241B12]/8 dark:border-[#E9E0CD]/10 warm-shadow">
             <BookCover
     src={displayBook.coverImage}
     title={displayBook.title}
@@ -187,7 +187,7 @@ const ResourceDetailPage = ({ resourceId }) => {
               </span>
             </div>
 
-            <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD] leading-tight">
+            <h1 className="page-title" style={{ textWrap: "balance" }}>
               {displayBook.title}
             </h1>
 

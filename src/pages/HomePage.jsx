@@ -1,8 +1,10 @@
+import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { HERO_DESK_ILLUSTRATION } from "../data/resources";
 import { useStudy } from "../context/StudyContext";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import {
   ArrowRightIcon,
   BooksIcon,
@@ -149,8 +151,8 @@ const HomePage = () => {
       {
     /* Stat Cards */
   }
-      <section aria-label="Study overview">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+      <section>
+        <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <Card
     hoverable
     onClick={() => navigate("/favoris")}
@@ -240,7 +242,7 @@ const HomePage = () => {
               <ClockIcon size={20} />
             </span>
           </Card>
-        </div>
+        </StaggeredGrid>
       </section>
 
       {
@@ -261,38 +263,36 @@ const HomePage = () => {
           </div>
           </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {quickSections.map(({ title, description, path, Icon, accent }) => <Card
+    as={Link}
+    to={path}
     key={path}
     hoverable
-    onClick={() => navigate(path)}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        navigate(path);
-      }
-    }}
-    className="cursor-pointer flex flex-col justify-between gap-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}
+    className="group flex h-full min-h-[220px] w-full flex-col justify-between gap-6 text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
   >
-              <div className="space-y-3">
-                <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
+              <div className="flex items-start justify-between gap-4">
+                <span aria-hidden="true" className={`w-11 h-11 rounded-2xl flex items-center justify-center ${accent}`}>
                   <Icon size={20} />
                 </span>
-                <h3 className="font-serif-display text-lg font-semibold text-[#241B12] dark:text-[#E9E0CD]">
+                <span aria-hidden="true" className="w-9 h-9 rounded-full border border-[#241B12]/10 dark:border-[#E9E0CD]/12 text-[#5C4B3A] dark:text-[#BDAE97] flex items-center justify-center transition-all duration-200 group-hover:border-[#2F6B52]/35 group-hover:text-[#245A43] dark:group-hover:border-[#C9A24A]/40 dark:group-hover:text-[#D9B65F]">
+                  <ArrowRightIcon size={16} />
+                </span>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-serif-display text-lg font-semibold text-[#241B12] dark:text-[#E9E0CD] leading-snug">
                   {title}
                 </h3>
-                <p className="text-sm leading-relaxed text-[#5C4B3A] dark:text-[#BDAE97]">
+                <p className="text-sm leading-relaxed text-[#5C4B3A] dark:text-[#BDAE97] line-clamp-3">
                   {description}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#245A43] dark:text-[#D9B65F]">
+              <span aria-hidden="true" className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase text-[#245A43] dark:text-[#D9B65F]">
                 <span>{t.home.openLabel}</span>
-                <ArrowRightIcon size={16} />
               </span>
             </Card>)}
-        </div>
+        </StaggeredGrid>
       </section>
     </div>;
 };

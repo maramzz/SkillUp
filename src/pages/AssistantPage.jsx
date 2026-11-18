@@ -4,6 +4,8 @@ import { useStudy } from "../context/StudyContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Textarea } from "../components/ui/Input";
+import { PageHeader } from "../components/ui/PageHeader";
+import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import { Tag } from "../components/ui/Tag";
 import {
   CheckIcon,
@@ -72,27 +74,18 @@ const AssistantPage = () => {
     setSavedNoteIds((prev) => [...prev, noteId]);
   };
   return <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="space-y-1.5">
-          <p className="font-handwritten text-2xl text-[#245A43] dark:text-[#D9B65F]">
-            {t.assistant.kicker}
-          </p>
-          <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-            {t.assistant.title}
-          </h1>
-          <p className="text-sm sm:text-[15px] text-[#5C4B3A] dark:text-[#BDAE97]">
-            {t.assistant.subtitle}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Button
+      <PageHeader
+        eyebrow={t.assistant.kicker}
+        title={t.assistant.title}
+        description={t.assistant.subtitle}
+        actions={<>
+          {import.meta.env.DEV && <Button
     variant="ghost"
     size="sm"
     onClick={() => setErrorMessage(t.assistant.errorFriendly)}
   >
             {t.assistant.simulateErrorBtn}
-          </Button>
+          </Button>}
           {assistantNotes.length > 0 && <Button
     variant="ghost"
     size="sm"
@@ -101,8 +94,8 @@ const AssistantPage = () => {
   >
               {t.assistant.clearNotes}
             </Button>}
-        </div>
-      </div>
+        </>}
+      />
 
       {
     /* Question Composer Card */
@@ -171,7 +164,7 @@ const AssistantPage = () => {
     type="button"
     disabled={isLoading}
     onClick={() => setAssistantDraft(prompt)}
-    className="text-left text-xs px-3.5 py-2 rounded-xl bg-[#DDD2BA]/75 hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#30261B] dark:hover:bg-[#3D2E25] dark:text-[#E9E0CD] transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    className="min-h-10 text-left text-xs px-3.5 py-2 rounded-xl bg-[#DDD2BA]/75 hover:bg-[#D2C5A8] text-[#241B12] dark:bg-[#30261B] dark:hover:bg-[#3D2E25] dark:text-[#E9E0CD] transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
   >
                 {prompt}
               </button>)}
@@ -223,9 +216,9 @@ const AssistantPage = () => {
             </span>
             <span className="inline-flex items-center gap-1 text-xs font-medium text-[#5C4B3A] dark:text-[#BDAE97]">
               <span>{t.assistant.thinkingBtn}</span>
-              <span className="thinking-dot-1">.</span>
-              <span className="thinking-dot-2">.</span>
-              <span className="thinking-dot-3">.</span>
+              <span aria-hidden="true" className="thinking-dot-1">.</span>
+              <span aria-hidden="true" className="thinking-dot-2">.</span>
+              <span aria-hidden="true" className="thinking-dot-3">.</span>
             </span>
           </div>
           <div className="space-y-2.5 animate-pulse pt-2">
@@ -248,7 +241,7 @@ const AssistantPage = () => {
           <p className="text-[15px] leading-relaxed text-[#241B12]/85 dark:text-[#E9E0CD]/85">
             {t.assistant.indexReadyBody}
           </p>
-        </Card> : <div className="space-y-6">
+        </Card> : <StaggeredGrid className="space-y-6">
           {[...assistantNotes].reverse().map((note) => {
     const isSaved = savedNoteIds.includes(note.id);
     return <article key={note.id} className="space-y-3">
@@ -289,7 +282,7 @@ const AssistantPage = () => {
                 </Card>
               </article>;
   })}
-        </div>}
+        </StaggeredGrid>}
     </div>;
 };
 export {

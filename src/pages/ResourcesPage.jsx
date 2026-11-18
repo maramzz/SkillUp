@@ -9,6 +9,8 @@ import { FilterPill, Tag } from "../components/ui/Tag";
 import { HeartButton } from "../components/ui/HeartButton";
 import { BookCover } from "../components/ui/BookCover";
 import { Button } from "../components/ui/Button";
+import { PageHeader } from "../components/ui/PageHeader";
+import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import {
   CloseIcon,
   EmptyShelfIllustration,
@@ -78,30 +80,22 @@ const ResourcesPage = () => {
       {
     /* Header & State Inspector */
   }
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="space-y-1.5">
-          <p className="font-handwritten text-2xl text-[#245A43] dark:text-[#D9B65F]">
-            {t.resources.kicker}
-          </p>
-          <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-            {t.resources.title}
-          </h1>
-          <p className="text-sm sm:text-[15px] text-[#5C4B3A] dark:text-[#BDAE97]">
-            {t.resources.subtitle}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+      <PageHeader
+        eyebrow={t.resources.kicker}
+        title={t.resources.title}
+        description={t.resources.subtitle}
+        actions={<>
           <button
     type="button"
     onClick={() => loadCatalog(activeQuery, selectedCategory, 1, false)}
-    aria-label="Refresh resources"
+    aria-label={t.resources.refreshAriaLabel}
+    title={t.resources.refreshAriaLabel}
     className="w-10 h-10 rounded-2xl bg-[#F6F0E1] dark:bg-[#261E15] border border-[#241B12]/10 dark:border-[#E9E0CD]/10 flex items-center justify-center text-[#5C4B3A] dark:text-[#BDAE97] hover:text-[#241B12] dark:hover:text-[#E9E0CD] transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
   >
             <RefreshIcon size={16} />
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {
     /* Search & Pill Filter Row */
@@ -136,7 +130,7 @@ const ResourcesPage = () => {
 
         <div
     role="group"
-    aria-label="Filter by discipline"
+    aria-label={t.resources.filterAriaLabel}
     className="flex flex-wrap items-center gap-2"
   >
           {RESOURCE_CATEGORIES.map((category) => <FilterPill
@@ -154,7 +148,7 @@ const ResourcesPage = () => {
   }
       {viewState === "loading" && <div
     aria-busy="true"
-    aria-label="Loading resources"
+    aria-label={t.resources.loadingAriaLabel}
     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
   >
           {Array.from({ length: 8 }).map((_, idx) => <Card key={idx} padding="sm" className="space-y-4 animate-pulse">
@@ -222,7 +216,7 @@ const ResourcesPage = () => {
             <span>{t.resources.showingCount(books.length, Math.max(books.length, numFound))}</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {books.map((book) => {
     const fav = isFavorite(book.id);
     return <Card
@@ -276,7 +270,7 @@ const ResourcesPage = () => {
                   </div>
                 </Card>;
   })}
-          </div>
+          </StaggeredGrid>
 
           {hasMore && <div className="flex justify-center pt-2">
               <Button

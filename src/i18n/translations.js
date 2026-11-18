@@ -107,6 +107,9 @@ const TRANSLATIONS = {
       stateCatalog: "Catalog",
       stateLoading: "Loading",
       stateError: "Error",
+      refreshAriaLabel: "Refresh resources",
+      loadingAriaLabel: "Loading resources",
+      filterAriaLabel: "Filter by discipline",
       searchPlaceholder: "Search Open Library by title, author, or subject...",
       searchButton: "Search",
       clearSearch: "Clear search",
@@ -150,7 +153,8 @@ const TRANSLATIONS = {
       addMore: "Add more books",
       emptyTitle: "Your bookshelf is currently empty",
       emptyBody: "Tap the heart icon on any textbook or study guide in Resources to place it on this shelf.",
-      browseLibrary: "Browse library"
+      browseLibrary: "Browse library",
+      shelfRowLabel: (n) => `Bookshelf row ${n}`
     },
     revisions: {
       kicker: "Steady daily momentum",
@@ -162,6 +166,7 @@ const TRANSLATIONS = {
       remainingSub: (n) => `${n} ${n === 1 ? "session" : "sessions"} remaining in your queue.`,
       goalReached: "Goal reached",
       activeStreak: "Active streak",
+      streakEmpty: "Start a study streak",
       formTitle: "New revision task",
       formSubtitle: "Add a chapter, problem set, or flashcard milestone.",
       fieldTitle: "Task title",
@@ -320,6 +325,9 @@ const TRANSLATIONS = {
       stateCatalog: "Catalogue",
       stateLoading: "Chargement",
       stateError: "Erreur",
+      refreshAriaLabel: "Actualiser les ressources",
+      loadingAriaLabel: "Chargement des ressources",
+      filterAriaLabel: "Filtrer par discipline",
       searchPlaceholder: "Rechercher par titre, auteur ou matière...",
       searchButton: "Rechercher",
       clearSearch: "Effacer la recherche",
@@ -363,7 +371,8 @@ const TRANSLATIONS = {
       addMore: "Ajouter des livres",
       emptyTitle: "Votre étagère est actuellement vide",
       emptyBody: "Touchez le cœur sur n’importe quel manuel dans Ressources pour le placer sur cette étagère.",
-      browseLibrary: "Parcourir les ressources"
+      browseLibrary: "Parcourir les ressources",
+      shelfRowLabel: (n) => `Rangée d’étagère ${n}`
     },
     revisions: {
       kicker: "Régularité au quotidien",
@@ -375,6 +384,7 @@ const TRANSLATIONS = {
       remainingSub: (n) => `${n} séance${n > 1 ? "s" : ""} restante${n > 1 ? "s" : ""} dans votre programme.`,
       goalReached: "Objectif atteint",
       activeStreak: "Série active",
+      streakEmpty: "Commencer une série",
       formTitle: "Nouvelle tâche de révision",
       formSubtitle: "Ajoutez un chapitre, un exercice ou une échéance d’examen.",
       fieldTitle: "Titre de la tâche",

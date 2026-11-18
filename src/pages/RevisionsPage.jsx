@@ -3,7 +3,9 @@ import { useStudy } from "../context/StudyContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input, Textarea } from "../components/ui/Input";
+import { PageHeader } from "../components/ui/PageHeader";
 import { FilterPill, Tag } from "../components/ui/Tag";
+import { StaggeredGrid } from "../components/ui/StaggeredGrid";
 import {
   CheckIcon,
   ChecklistIcon,
@@ -21,6 +23,13 @@ function isValidIsoDate(dateStr) {
   if (y < 2020 || y > 2100) return false;
   const parsed = new Date(Date.UTC(y, m - 1, d));
   return parsed.getUTCFullYear() === y && parsed.getUTCMonth() === m - 1 && parsed.getUTCDate() === d;
+}
+function getLocalDateKey(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
 }
 const RevisionsPage = () => {
   const { tasks, addTask, toggleTask, deleteTask, language, t } = useStudy();
@@ -63,7 +72,22 @@ const RevisionsPage = () => {
   const completedCount = tasks.filter((item) => item.done).length;
   const inProgressCount = tasks.length - completedCount;
   const completionPct = tasks.length === 0 ? 0 : Math.round(completedCount / tasks.length * 100);
-  const streakDays = 4 + completedCount;
+  const streakDays = useMemo(() => {
+    const completedDates = new Set(
+      tasks.filter((item) => item.done && item.completedAt).map((item) => item.completedAt)
+    );
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    let currentDay = completedDates.has(getLocalDateKey(today)) ? today : yesterday;
+    let streak = 0;
+    while (completedDates.has(getLocalDateKey(currentDay))) {
+      streak += 1;
+      currentDay.setDate(currentDay.getDate() - 1);
+    }
+    return streak;
+  }, [tasks]);
   const filteredTasks = useMemo(() => {
     return tasks.filter((item) => {
       if (filter === "in_progress") return !item.done;
@@ -96,17 +120,11 @@ const RevisionsPage = () => {
   const dashOffset = circumference - completionPct / 100 * circumference;
   const emptyStateCopy = tasks.length === 0 ? { title: t.revisions.emptyAllTitle, body: t.revisions.emptyAllBody } : filter === "in_progress" ? { title: t.revisions.emptyInProgressTitle, body: t.revisions.emptyInProgressBody } : filter === "done" ? { title: t.revisions.emptyDoneTitle, body: t.revisions.emptyDoneBody } : { title: t.revisions.emptyAllTitle, body: t.revisions.emptyAllBody };
   return <div className="space-y-8">
-      <div className="space-y-1.5">
-        <p className="font-handwritten text-2xl text-[#245A43] dark:text-[#D9B65F]">
-          {t.revisions.kicker}
-        </p>
-        <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-          {t.revisions.title}
-        </h1>
-        <p className="text-sm sm:text-[15px] text-[#5C4B3A] dark:text-[#BDAE97]">
-          {t.revisions.subtitle}
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={t.revisions.kicker}
+        title={t.revisions.title}
+        description={t.revisions.subtitle}
+      />
 
       {
     /* Study Streak Progress Card */
@@ -145,9 +163,9 @@ const RevisionsPage = () => {
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#9E6E14] dark:text-[#DFB056]">
-                  <FlameIcon size={17} />
-                  <span className="tabular-nums">{t.revisions.streakLabel(streakDays)}</span>
+                <span className={`inline-flex items-center gap-1 text-sm font-semibold ${streakDays > 0 ? "text-[#9E6E14] dark:text-[#DFB056]" : "text-[#5C4B3A] dark:text-[#BDAE97]"}`}>
+                  <FlameIcon size={17} aria-hidden="true" />
+                  <span className="tabular-nums">{streakDays > 0 ? t.revisions.streakLabel(streakDays) : t.revisions.streakEmpty}</span>
                 </span>
               </div>
               <h2 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD] mt-0.5 tabular-nums">
@@ -160,8 +178,8 @@ const RevisionsPage = () => {
           </div>
 
           <div className="sm:text-right">
-            <Tag tone={completionPct === 100 && tasks.length > 0 ? "sage" : "gold"}>
-              {completionPct === 100 && tasks.length > 0 ? t.revisions.goalReached : t.revisions.activeStreak}
+            <Tag tone={completionPct === 100 && tasks.length > 0 ? "sage" : streakDays > 0 ? "gold" : "neutral"}>
+              {completionPct === 100 && tasks.length > 0 ? t.revisions.goalReached : streakDays > 0 ? t.revisions.activeStreak : t.revisions.streakEmpty}
             </Tag>
           </div>
         </div>
@@ -275,7 +293,7 @@ const RevisionsPage = () => {
               <p className="text-sm text-[#5C4B3A] dark:text-[#BDAE97] max-w-sm mx-auto">
                 {emptyStateCopy.body}
               </p>
-            </Card> : <div className="space-y-3.5">
+            </Card> : <StaggeredGrid className="space-y-3.5">
               {filteredTasks.map((task) => {
     const deadlineMeta = getDeadlineInfo(task.deadline, task.done);
     return <Card
@@ -328,7 +346,7 @@ const RevisionsPage = () => {
                     </button>
                   </Card>;
   })}
-            </div>}
+            </StaggeredGrid>}
         </div>
       </div>
     </div>;

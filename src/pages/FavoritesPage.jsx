@@ -4,6 +4,9 @@ import { BookCover } from "../components/ui/BookCover";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { HeartButton } from "../components/ui/HeartButton";
+import { PageHeader } from "../components/ui/PageHeader";
+import { StaggeredGrid } from "../components/ui/StaggeredGrid";
+import { Tag } from "../components/ui/Tag";
 import { BooksIcon, EmptyShelfIllustration } from "../components/icons/StudyIcons";
 const FavoritesPage = () => {
   const { favoriteBooks, toggleFavorite, navigate, language, t } = useStudy();
@@ -12,27 +15,18 @@ const FavoritesPage = () => {
     shelves.push(favoriteBooks.slice(i, i + 3));
   }
   return <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="space-y-1.5">
-          <p className="font-handwritten text-2xl text-[#245A43] dark:text-[#D9B65F]">
-            {t.favorites.kicker}
-          </p>
-          <h1 className="font-serif-display text-3xl sm:text-4xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-            {t.favorites.title}
-          </h1>
-          <p className="text-sm sm:text-[15px] text-[#5C4B3A] dark:text-[#BDAE97]">
-            {favoriteBooks.length === 0 ? t.favorites.emptySubtitle : t.favorites.countSubtitle(favoriteBooks.length)}
-          </p>
-        </div>
-
-        {favoriteBooks.length > 0 && <Button
+      <PageHeader
+        eyebrow={t.favorites.kicker}
+        title={t.favorites.title}
+        description={favoriteBooks.length === 0 ? t.favorites.emptySubtitle : t.favorites.countSubtitle(favoriteBooks.length)}
+        actions={favoriteBooks.length > 0 && <Button
     variant="secondary"
     onClick={() => navigate("/ressources")}
     leftIcon={<BooksIcon size={18} />}
   >
             {t.favorites.addMore}
           </Button>}
-      </div>
+      />
 
       {favoriteBooks.length === 0 ? <Card className="py-14 px-6 text-center max-w-lg mx-auto space-y-5">
           <div className="flex justify-center text-[#5C4B3A] dark:text-[#BDAE97]">
@@ -54,10 +48,10 @@ const FavoritesPage = () => {
         </Card> : <div className="space-y-12">
           {shelves.map((shelfBooks, shelfIndex) => <section
     key={shelfIndex}
-    aria-label={`Bookshelf row ${shelfIndex + 1}`}
+    aria-label={t.favorites.shelfRowLabel(shelfIndex + 1)}
     className="relative"
   >
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8 px-3 sm:px-8 items-end">
+              <StaggeredGrid className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8 px-3 sm:px-8 items-end">
                 {shelfBooks.map((book) => <div key={book.id} className="group relative flex flex-col">
                     <div
     onClick={() => navigate(`/ressources/${book.id}`)}
@@ -102,9 +96,12 @@ const FavoritesPage = () => {
                           {book.author}
                         </p>
                       </button>
+                      <Tag tone="terracotta" className="mt-2 self-start">
+                        {CATEGORY_LABELS[language][book.category]}
+                      </Tag>
                     </div>
                   </div>)}
-              </div>
+              </StaggeredGrid>
 
               <div
     aria-hidden="true"

@@ -160,9 +160,18 @@ const StudyProvider = ({ children }) => {
     setTasks((prev) => [newTask, ...prev]);
   };
   const toggleTask = (id) => {
-    setTasks(
-      (prev) => prev.map((task) => task.id === id ? { ...task, done: !task.done } : task)
-    );
+    const now = new Date();
+    const completedAt = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0")
+    ].join("-");
+    setTasks((prev) => prev.map((task) => {
+      if (task.id !== id) return task;
+      return task.done
+        ? { ...task, done: false, completedAt: undefined }
+        : { ...task, done: true, completedAt };
+    }));
   };
   const deleteTask = (id) => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
