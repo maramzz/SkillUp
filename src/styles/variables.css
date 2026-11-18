@@ -1,0 +1,91 @@
+
+
+/* 1. LIGHT THEME */
+:root {
+  /* Colors */
+  --color-background: #F6EFE4;
+  --color-surface: #FBF7F0;
+  --color-surface-hover: #EFE5D6;
+
+  --color-text: #2E1F17;
+  --color-text-muted: #7A6455;
+
+  --color-primary: #C4693D;
+  --color-primary-hover: #B3562B;
+
+  --color-success: #8A9A7B;
+  --color-warning: #D9A441;
+  --color-danger: #C45B4D;
+
+  /* Borders */
+  --color-border: rgba(46, 31, 23, 0.10);
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-handwritten: 'Caveat', cursive;
+
+  /* Font sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Rounded corners */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(46, 31, 23, 0.04);
+  --shadow-md: 0 8px 24px rgba(46, 31, 23, 0.07);
+  --shadow-lg: 0 16px 40px rgba(46, 31, 23, 0.10);
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 76px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* 2. DARK THEME */
+[data-theme="dark"] {
+  --color-background: #1E1612;
+  --color-surface: #271D18;
+  --color-surface-hover: #342821;
+
+  --color-text: #F6EFE4;
+  --color-text-muted: #C4B4A7;
+
+  --color-primary: #D07D54;
+  --color-primary-hover: #E59B76;
+
+  --color-success: #97A888;
+  --color-warning: #DFB056;
+  --color-danger: #DF8072;
+
+  --color-border: rgba(246, 239, 228, 0.10);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
