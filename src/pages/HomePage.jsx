@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { HERO_DESK_ILLUSTRATION } from "../data/resources";
 import { useStudy } from "../context/StudyContext";
+import { getBookProgressPct, getBookStudyEntry } from "../utils/bookStudy";
+import { CATEGORY_LABELS } from "../i18n/translations";
+import { BookCover } from "../components/ui/BookCover";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { CharacterReveal } from "../components/ui/CharacterReveal";
@@ -18,6 +21,7 @@ const HomePage = () => {
   const {
     navigate,
     favoriteBooks,
+    bookStudyData,
     tasks,
     studentName,
     resetStudentName,
@@ -72,7 +76,7 @@ const HomePage = () => {
       description: t.home.corners.revisionsDesc,
       path: "/revisions",
       Icon: ChecklistIcon,
-      accent: "text-[#4C5E3E] dark:text-[#97A888] bg-[#8A9A7B]/16 dark:bg-[#97A888]/18"
+      accent: "text-[#4C5E3E] dark:text-[#D9B65F] bg-[#8A9A7B]/16 dark:bg-[#C9A24A]/18"
     },
     {
       title: t.home.corners.assistantTitle,
@@ -166,7 +170,7 @@ const HomePage = () => {
         navigate("/favoris");
       }
     }}
-    className="cursor-pointer flex items-start justify-between gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    className="cursor-pointer flex items-start justify-between gap-4 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:border-transparent"
   >
             <div>
               <p className="text-sm font-medium text-[#5C4B3A] dark:text-[#BDAE97]">
@@ -195,7 +199,7 @@ const HomePage = () => {
         navigate("/revisions");
       }
     }}
-    className="cursor-pointer flex items-start justify-between gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    className="cursor-pointer flex items-start justify-between gap-4 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:border-transparent"
   >
             <div>
               <p className="text-sm font-medium text-[#5C4B3A] dark:text-[#BDAE97]">
@@ -227,7 +231,7 @@ const HomePage = () => {
         navigate("/revisions");
       }
     }}
-    className="cursor-pointer flex items-start justify-between gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    className="cursor-pointer flex items-start justify-between gap-4 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:border-transparent"
   >
             <div className="min-w-0">
               <p className="text-sm font-medium text-[#5C4B3A] dark:text-[#BDAE97]">
@@ -246,6 +250,67 @@ const HomePage = () => {
           </Card>
         </StaggeredGrid>
       </section>
+
+      {favoriteBooks.length > 0 && <section aria-labelledby="home-bookshelf-heading" className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="space-y-1">
+            <h2
+              id="home-bookshelf-heading"
+              className="font-serif-display text-2xl font-semibold text-[#241B12] dark:text-[#E9E0CD]"
+            >
+              {t.homeShelf.title}
+            </h2>
+            <p className="text-sm text-[#5C4B3A] dark:text-[#BDAE97]">
+              {t.homeShelf.subtitle}
+            </p>
+          </div>
+          <Link
+            to="/favoris"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-sm font-semibold text-[#245A43] transition-colors hover:text-[#9E6E14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:text-[#D9B65F] dark:hover:text-[#F0CC75]"
+          >
+            {t.homeShelf.viewAll}
+            <ArrowRightIcon size={16} />
+          </Link>
+        </div>
+        <StaggeredGrid className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+          {favoriteBooks.slice(0, 4).map((book) => {
+            const study = getBookStudyEntry(bookStudyData, book);
+            const progressPct = getBookProgressPct(study);
+            const progressLabel = study.status === "finished"
+              ? t.detail.statusFinished
+              : progressPct > 0
+                ? t.homeShelf.percentRead(progressPct)
+                : t.homeShelf.toRead;
+            return <Card
+              as={Link}
+              to={`/ressources/${book.id}`}
+              key={book.id}
+              hoverable
+              onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}
+              className="group flex h-full flex-col gap-3 border-transparent no-underline dark:border-transparent"
+            >
+              <BookCover
+                src={book.coverImage}
+                title={book.title}
+                category={CATEGORY_LABELS[language][book.category]}
+                tone={book.shelfTone}
+                noCoverLabel={t.resources.noCoverLabel}
+                progressPct={progressPct}
+                progressStatus={study.status}
+                className="max-w-[220px] self-center"
+              />
+              <div className="min-w-0 space-y-1">
+                <h3 className="line-clamp-2 font-serif-display text-base font-semibold leading-snug text-[#241B12] transition-colors group-hover:text-[#245A43] dark:text-[#E9E0CD] dark:group-hover:text-[#D9B65F]">
+                  {book.title}
+                </h3>
+                <p className={`text-xs font-medium ${study.status === "finished" ? "text-[#4C5E3E] dark:text-[#97A888]" : "text-[#9E6E14] dark:text-[#DFB056]"}`}>
+                  {progressLabel}
+                </p>
+              </div>
+            </Card>;
+          })}
+        </StaggeredGrid>
+      </section>}
 
       {
     /* Quick-access section */
@@ -272,7 +337,7 @@ const HomePage = () => {
     key={path}
     hoverable
     onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}
-    className="group flex h-full min-h-[220px] w-full flex-col justify-between gap-6 text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    className="group flex h-full min-h-[220px] w-full flex-col justify-between gap-6 border-transparent text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52] dark:border-transparent"
   >
               <div className="flex items-start justify-between gap-4">
                 <span aria-hidden="true" className={`w-11 h-11 rounded-2xl flex items-center justify-center ${accent}`}>

@@ -1,12 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TRANSLATIONS } from "../i18n/translations";
+import { migrateLegacyReadingProgress, normalizeBookStudyEntry, normalizePageCount } from "../utils/bookStudy";
 const StudyContext = createContext(null);
 const STORAGE_KEYS = {
   theme: "skillup_theme_v1",
   language: "skillup_language_v1",
   studentName: "skillup_student_name_v2",
   favoriteBooks: "skillup_favorite_books_v2",
+  bookStudyData: "skillup_book_study_v1",
+  legacyReadingProgress: "skillup_reading_progress_v1",
   tasks: "skillup_tasks_v2",
   notes: "skillup_assistant_notes_v1"
 };
@@ -45,6 +48,33 @@ const StudyProvider = ({ children }) => {
     }
     return [];
   });
+  const [bookStudyData, setBookStudyData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.bookStudyData);
+      if (saved !== null) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          return Object.fromEntries(
+            Object.entries(parsed).map(([bookId, entry]) => [
+              bookId,
+              normalizeBookStudyEntry(entry)
+            ])
+          );
+        }
+      }
+      const legacy = localStorage.getItem(STORAGE_KEYS.legacyReadingProgress);
+      if (legacy !== null) {
+        const parsedLegacy = JSON.parse(legacy);
+        if (parsedLegacy && typeof parsedLegacy === "object" && !Array.isArray(parsedLegacy)) {
+          return migrateLegacyReadingProgress(parsedLegacy);
+        }
+      }
+    } catch {
+      // ignore: storage unavailable or data is broken
+    }
+    return {};
+  });
+  const bookStudyDataRef = useRef(bookStudyData);
   const bookCache = useRef({});
   const [tasks, setTasks] = useState(() => {
     try {
@@ -102,6 +132,9 @@ const StudyProvider = ({ children }) => {
     localStorage.setItem(STORAGE_KEYS.favoriteBooks, JSON.stringify(favoriteBooks));
   }, [favoriteBooks]);
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.bookStudyData, JSON.stringify(bookStudyData));
+  }, [bookStudyData]);
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
   }, [tasks]);
   useEffect(() => {
@@ -156,12 +189,76 @@ const StudyProvider = ({ children }) => {
   const toggleFavorite = (book) => {
     setFavoriteBooks((prev) => {
       const exists = prev.some((item) => item.id === book.id);
-      if (exists) {
-        return prev.filter((item) => item.id !== book.id);
-      }
+      if (exists) return prev.filter((item) => item.id !== book.id);
       return [book, ...prev];
     });
   };
+  const updateBookStudyData = useCallback((bookId, updates, initialTotalPages = 0) => {
+    const previous = normalizeBookStudyEntry(
+      bookStudyDataRef.current[bookId],
+      initialTotalPages
+    );
+    const changes = typeof updates === "function" ? updates(previous) : updates;
+    const hasStatusChange = Object.hasOwn(changes, "status")
+      && changes.status !== previous.status;
+    const hasPageChange = (
+      Object.hasOwn(changes, "currentPage")
+      && normalizePageCount(changes.currentPage) !== previous.currentPage
+    ) || (
+      Object.hasOwn(changes, "totalPages")
+      && normalizePageCount(changes.totalPages) !== previous.totalPages
+    );
+    const next = {
+      ...previous,
+      ...changes,
+      totalPages: normalizePageCount(changes.totalPages ?? previous.totalPages),
+      currentPage: normalizePageCount(changes.currentPage ?? previous.currentPage),
+      notes: changes.notes ?? previous.notes
+    };
+
+    next.currentPage = next.totalPages > 0
+      ? Math.min(next.currentPage, next.totalPages)
+      : next.currentPage;
+
+    if (hasStatusChange) {
+      if (next.status === "finished") next.currentPage = next.totalPages;
+      if (next.status === "to_read") next.currentPage = 0;
+    } else if (hasPageChange) {
+      if (next.totalPages > 0 && next.currentPage >= next.totalPages) {
+        next.status = "finished";
+      } else if (next.currentPage > 0) {
+        next.status = "reading";
+      } else {
+        next.status = "to_read";
+      }
+    }
+
+    const normalized = normalizeBookStudyEntry(next);
+    const nextBookStudyData = {
+      ...bookStudyDataRef.current,
+      [bookId]: normalized
+    };
+    bookStudyDataRef.current = nextBookStudyData;
+    setBookStudyData(nextBookStudyData);
+    localStorage.setItem(STORAGE_KEYS.bookStudyData, JSON.stringify(nextBookStudyData));
+  }, []);
+  const ensureBookStudyData = useCallback((bookId, initialTotalPages = 0) => {
+    const existing = bookStudyDataRef.current[bookId];
+    if (!existing) {
+      updateBookStudyData(bookId, {}, initialTotalPages);
+      return;
+    }
+
+    const normalized = normalizeBookStudyEntry(existing);
+    if (initialTotalPages > 0 && normalized.totalPages === 0) {
+      updateBookStudyData(bookId, {
+        totalPages: initialTotalPages,
+        currentPage: normalized.status === "finished"
+          ? initialTotalPages
+          : normalized.currentPage
+      }, initialTotalPages);
+    }
+  }, [updateBookStudyData]);
   const isFavorite = (id) => favoriteBooks.some((item) => item.id === id);
   const cacheBooks = useCallback((books) => {
     for (const b of books) bookCache.current[b.id] = b;
@@ -226,6 +323,9 @@ const StudyProvider = ({ children }) => {
       favoriteBooks,
       favoriteIds,
       toggleFavorite,
+      bookStudyData,
+      updateBookStudyData,
+      ensureBookStudyData,
       isFavorite,
       cacheBooks,
       getCachedBook,

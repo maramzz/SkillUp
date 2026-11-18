@@ -6,10 +6,16 @@ const BookCover = ({
   category,
   tone = "#2F6B52",
   noCoverLabel,
+  progressPct = 0,
+  progressStatus = "to_read",
   className = ""
 }) => {
   const [hasError, setHasError] = useState(false);
   const showFallback = !src || hasError;
+  const boundedProgress = Math.min(100, Math.max(0, Number(progressPct) || 0));
+  const progressColor = progressStatus === "finished"
+    ? "from-[#6F8260] to-[#97A888]"
+    : "from-[#D9A441] to-[#C4693D]";
   return <div
     className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#E9E2D6] dark:bg-[#303129] border border-[#241B12]/10 dark:border-[#E9E0CD]/10 shadow-sm ${className}`}
   >
@@ -48,6 +54,15 @@ const BookCover = ({
     aria-hidden="true"
     className="pointer-events-none absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/18 via-white/10 to-transparent"
   />
+      {boundedProgress > 0 && <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1.5 bg-[#EFE5D6]/90 dark:bg-[#342821]/90"
+      >
+        <div
+          className={`h-full bg-gradient-to-r ${progressColor}`}
+          style={{ width: `${boundedProgress}%` }}
+        />
+      </div>}
     </div>;
 };
 export {

@@ -3,6 +3,7 @@ import { RESOURCE_CATEGORIES } from "../data/resources";
 import { searchBooks } from "../services/openLibrary";
 import { useStudy } from "../context/StudyContext";
 import { CATEGORY_LABELS } from "../i18n/translations";
+import { getBookProgressPct, getBookStudyEntry } from "../utils/bookStudy";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { FilterPill, Tag } from "../components/ui/Tag";
@@ -20,7 +21,15 @@ import {
 } from "../components/icons/StudyIcons";
 const PAGE_SIZE = 20;
 const ResourcesPage = () => {
-  const { navigate, isFavorite, toggleFavorite, cacheBooks, language, t } = useStudy();
+  const {
+    navigate,
+    isFavorite,
+    toggleFavorite,
+    cacheBooks,
+    bookStudyData,
+    language,
+    t
+  } = useStudy();
   const [searchInput, setSearchInput] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -253,6 +262,7 @@ const ResourcesPage = () => {
           <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {sortedBooks.map((book) => {
     const fav = isFavorite(book.id);
+    const study = getBookStudyEntry(bookStudyData, book);
     return <Card
       key={book.id}
       padding="sm"
@@ -275,6 +285,8 @@ const ResourcesPage = () => {
       category={CATEGORY_LABELS[language][book.category]}
       tone={book.shelfTone}
       noCoverLabel={t.resources.noCoverLabel}
+      progressPct={getBookProgressPct(study)}
+      progressStatus={study.status}
     />
                     <div className="absolute top-3 right-3">
                       <HeartButton

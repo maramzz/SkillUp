@@ -2,11 +2,11 @@ import { Children } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 8 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
   }
 };
 const reducedItemVariants = {
@@ -19,7 +19,9 @@ const StaggeredGrid = ({ children, className = "", ...rest }) => {
   return <motion.div
       className={className}
       initial={shouldReduceMotion ? false : "hidden"}
-      animate="visible"
+      animate={shouldReduceMotion ? "visible" : undefined}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
+      viewport={shouldReduceMotion ? undefined : { once: true, amount: 0.12 }}
       variants={{
         hidden: {},
         visible: {

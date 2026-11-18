@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getBook } from "../services/openLibrary";
 import { useStudy } from "../context/StudyContext";
 import { CATEGORY_LABELS } from "../i18n/translations";
+import { ReadingProgressCard } from "../components/ReadingProgressCard";
+import { MarginNotesCard } from "../components/MarginNotesCard";
 import { BookCover } from "../components/ui/BookCover";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -21,6 +23,7 @@ const ResourceDetailPage = ({ resourceId }) => {
     toggleFavorite,
     getCachedBook,
     cacheBooks,
+    ensureBookStudyData,
     addTask,
     setAssistantDraft,
     setAssistantContextBook,
@@ -52,13 +55,22 @@ const ResourceDetailPage = ({ resourceId }) => {
           return;
         }
         if (!cancelled) {
-          setBook(found);
-          cacheBooks([found]);
+          const resolvedBook = {
+            ...found,
+            pages: found.pages ?? cached?.pages ?? null
+          };
+          ensureBookStudyData(resolvedBook.id, resolvedBook.pages ?? 0);
+          setBook(resolvedBook);
+          cacheBooks([resolvedBook]);
           setLoading(false);
         }
       } catch {
         if (!cancelled) {
-          if (!cached) setNotFound(true);
+          if (!cached) {
+            setNotFound(true);
+          } else {
+            ensureBookStudyData(cached.id, cached.pages ?? 0);
+          }
           setLoading(false);
         }
       }
@@ -67,7 +79,7 @@ const ResourceDetailPage = ({ resourceId }) => {
     return () => {
       cancelled = true;
     };
-  }, [resourceId, getCachedBook, cacheBooks]);
+  }, [resourceId, getCachedBook, cacheBooks, ensureBookStudyData]);
   const effectiveLoading = previewState === "loading" || previewState === "live" && loading;
   const effectiveNotFound = previewState === "not_found" || previewState === "live" && notFound && !book;
   const displayBook = book ? {
@@ -155,7 +167,7 @@ const ResourceDetailPage = ({ resourceId }) => {
         {
     /* Left: Large cover (with clean no-cover state) */
   }
-        <div className="lg:col-span-5 max-w-sm lg:max-w-none mx-auto w-full space-y-3">
+        <div className="lg:col-span-5 max-w-sm lg:max-w-none mx-auto w-full space-y-4">
           <div className="p-3 sm:p-4 rounded-[20px] bg-[#F6F0E1] dark:bg-[#261E15] border border-[#241B12]/8 dark:border-[#E9E0CD]/10 warm-shadow">
             <BookCover
     src={displayBook.coverImage}
@@ -168,6 +180,7 @@ const ResourceDetailPage = ({ resourceId }) => {
           {!displayBook.coverImage && <p className="text-center text-xs text-[#5C4B3A] dark:text-[#BDAE97]">
               {t.detail.noCoverBadge}
             </p>}
+          <ReadingProgressCard key={displayBook.id} book={displayBook} />
         </div>
 
         {
@@ -260,6 +273,7 @@ const ResourceDetailPage = ({ resourceId }) => {
                   </li>)}
               </ul>
             </Card>}
+          <MarginNotesCard book={displayBook} />
         </div>
       </div>
     </div>;

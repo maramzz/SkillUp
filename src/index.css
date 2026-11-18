@@ -160,29 +160,15 @@ html.theme-transitioning body *::after {
   opacity: 0.04;
 }
 
-/* Ruled notebook paper effect for AI answer card */
-.note-card-ruled {
+/* Soft paper surface for study note cards */
+.note-card-paper {
   background-color: #FAF5E8;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 31px,
-    rgba(47, 107, 82, 0.1) 31px,
-    rgba(47, 107, 82, 0.1) 32px
-  );
-  background-position: 0 12px;
+  background-image: none;
 }
 
-.dark .note-card-ruled {
+.dark .note-card-paper {
   background-color: #2A2118;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 31px,
-    rgba(201, 162, 74, 0.11) 31px,
-    rgba(201, 162, 74, 0.11) 32px
-  );
-  background-position: 0 12px;
+  background-image: none;
 }
 
 .warm-shadow {
