@@ -67,6 +67,11 @@ const PlusIcon = ({ size = 18, className }) => <svg {...baseSvgProps(size, class
     <path d="M12 5V19" />
     <path d="M5 12H19" />
   </svg>;
+const PencilIcon = ({ size = 18, className }) => <svg {...baseSvgProps(size, className)}>
+    <path d="M12 5H6C4.9 5 4 5.9 4 7V18C4 19.1 4.9 20 6 20H17C18.1 20 19 19.1 19 18V12" />
+    <path d="M15.5 4.5L19.5 8.5" />
+    <path d="M9 15L10 11L17.5 3.5C18.3 2.7 19.5 2.7 20.3 3.5C21.1 4.3 21.1 5.5 20.3 6.3L12.8 13.8L9 15Z" />
+  </svg>;
 const TrashIcon = ({ size = 18, className }) => <svg {...baseSvgProps(size, className)}>
     <path d="M4.5 7H19.5" />
     <path d="M9.5 4.5H14.5" />
@@ -254,6 +259,7 @@ export {
   HeartIcon,
   HomeIcon,
   MoonIcon,
+  PencilIcon,
   PauseIcon,
   PlayIcon,
   PlusIcon,

@@ -279,6 +279,12 @@ const StudyProvider = ({ children }) => {
     };
     setTasks((prev) => [newTask, ...prev]);
   };
+  const updateTask = (id, { title, description, deadline }) => {
+    setTasks((prev) => prev.map((task) => task.id === id
+      ? { ...task, title: title.trim(), description: description.trim(), deadline }
+      : task
+    ));
+  };
   const toggleTask = (id) => {
     const now = new Date();
     const completedAt = [
@@ -331,6 +337,7 @@ const StudyProvider = ({ children }) => {
       getCachedBook,
       tasks,
       addTask,
+      updateTask,
       toggleTask,
       deleteTask,
       assistantDraft,

@@ -11,6 +11,7 @@ import {
   ChecklistIcon,
   ClockIcon,
   FlameIcon,
+  PencilIcon,
   PlusIcon,
   TrashIcon
 } from "../components/icons/StudyIcons";
@@ -32,7 +33,7 @@ function getLocalDateKey(date) {
   ].join("-");
 }
 const RevisionsPage = () => {
-  const { tasks, addTask, toggleTask, deleteTask, language, t } = useStudy();
+  const { tasks, addTask, updateTask, toggleTask, deleteTask, language, t } = useStudy();
   const shouldReduceMotion = useReducedMotion();
   const layoutTransition = shouldReduceMotion
     ? { duration: 0 }
@@ -46,13 +47,16 @@ const RevisionsPage = () => {
   const [filter, setFilter] = useState("all");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [deadline, setDeadline] = useState(() => {
+  const getDefaultDeadline = () => {
     const d = /* @__PURE__ */ new Date();
     d.setDate(d.getDate() + 3);
     return d.toISOString().slice(0, 10);
-  });
+  };
+  const [deadline, setDeadline] = useState(getDefaultDeadline);
   const [titleError, setTitleError] = useState("");
   const [deadlineError, setDeadlineError] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const editingTask = tasks.find((task) => task.id === editingTaskId);
   const getDeadlineInfo = (dateStr, done) => {
     if (!dateStr || !isValidIsoDate(dateStr)) {
       return { label: t.revisions.badgeNoDeadline, tone: "neutral" };
@@ -114,16 +118,42 @@ const RevisionsPage = () => {
     } else {
       setTitleError("");
     }
-    if (!isValidIsoDate(deadline)) {
+    if (!isValidIsoDate(deadline) && !(editingTask && !deadline)) {
       setDeadlineError(t.revisions.errInvalidDate);
       hasErr = true;
     } else {
       setDeadlineError("");
     }
     if (hasErr) return;
-    addTask({ title, description, deadline });
+    if (editingTask) {
+      updateTask(editingTask.id, { title, description, deadline });
+      setEditingTaskId(null);
+      setDeadline(getDefaultDeadline());
+    } else {
+      addTask({ title, description, deadline });
+    }
     setTitle("");
     setDescription("");
+  };
+  const handleEditTask = (task) => {
+    setEditingTaskId(task.id);
+    setTitle(task.title);
+    setDescription(task.description || "");
+    setDeadline(task.deadline || "");
+    setTitleError("");
+    setDeadlineError("");
+  };
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setTitle("");
+    setDescription("");
+    setDeadline(getDefaultDeadline());
+    setTitleError("");
+    setDeadlineError("");
+  };
+  const handleDeleteTask = (taskId) => {
+    if (editingTaskId === taskId) handleCancelEdit();
+    deleteTask(taskId);
   };
   const radius = 26;
   const circumference = 2 * Math.PI * radius;
@@ -219,10 +249,10 @@ const RevisionsPage = () => {
         <Card padding="lg" className="lg:col-span-4 space-y-5">
           <div className="space-y-1">
             <h2 className="font-serif-display text-xl font-semibold text-[#241B12] dark:text-[#E9E0CD]">
-              {t.revisions.formTitle}
+              {editingTask ? t.revisions.editFormTitle : t.revisions.formTitle}
             </h2>
             <p className="text-xs text-[#5C4B3A] dark:text-[#BDAE97]">
-              {t.revisions.formSubtitle}
+              {editingTask ? t.revisions.editFormSubtitle : t.revisions.formSubtitle}
             </p>
           </div>
 
@@ -257,13 +287,23 @@ const RevisionsPage = () => {
     error={deadlineError}
   />
 
-            <Button
-    type="submit"
-    className="w-full"
-    leftIcon={<PlusIcon size={18} />}
-  >
-              {t.revisions.addTaskBtn}
-            </Button>
+            <div className="space-y-2">
+              <Button
+      type="submit"
+      className="w-full"
+      leftIcon={editingTask ? <CheckIcon size={18} /> : <PlusIcon size={18} />}
+    >
+                {editingTask ? t.revisions.saveTaskBtn : t.revisions.addTaskBtn}
+              </Button>
+              {editingTask && <Button
+      type="button"
+      variant="secondary"
+      className="w-full"
+      onClick={handleCancelEdit}
+    >
+                {t.revisions.cancelEditBtn}
+              </Button>}
+            </div>
           </form>
         </Card>
 
@@ -379,14 +419,24 @@ const RevisionsPage = () => {
                         </p>}
                     </div>
 
+                    <div className="flex shrink-0 items-center gap-1">
                     <button
       type="button"
-      onClick={() => deleteTask(task.id)}
+      onClick={() => handleEditTask(task)}
+      aria-label={`${t.revisions.editTask} "${task.title}"`}
+      className="w-11 h-11 rounded-2xl flex items-center justify-center text-[#5C4B3A] hover:text-[#2F6B52] hover:bg-[#2F6B52]/8 dark:text-[#BDAE97] dark:hover:text-[#97A888] dark:hover:bg-[#97A888]/12 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
+    >
+                      <PencilIcon size={18} />
+                    </button>
+                    <button
+      type="button"
+      onClick={() => handleDeleteTask(task.id)}
       aria-label={`Delete task "${task.title}"`}
       className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-[#5C4B3A] hover:text-[#9F352B] hover:bg-[#B8453A]/10 dark:text-[#BDAE97] dark:hover:text-[#E6867A] dark:hover:bg-[#E6867A]/12 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B52]"
     >
                       <TrashIcon size={18} />
                     </button>
+    </div>
                     </Card>
                   </motion.div>;
   })}
